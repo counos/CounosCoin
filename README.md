@@ -3,7 +3,7 @@ CounosCoin Core integration/staging tree
 
 [![Build Status](https://travis-ci.org/counoscoin-project/counoscoin.svg?branch=master)](https://travis-ci.org/counoscoin-project/counoscoin)
 
-https://counoscoin.org
+https://www.counos.io
 
 What is CounosCoin?
 ----------------
@@ -15,7 +15,7 @@ out collectively by the network. CounosCoin Core is the name of open source
 software which enables the use of this currency.
 
 For more information, as well as an immediately useable, binary version of
-the CounosCoin Core software, see [https://counoscoin.org](https://counoscoin.org).
+the CounosCoin Core software, see [https://www.counos.io](https://www.counos.io).
 
 License
 -------
