@@ -5,7 +5,7 @@ Setup
 ---------------------
 CounosCoin Core is the original CounosCoin client and it builds the backbone of the network. It downloads and, by default, stores the entire history of CounosCoin transactions (which is currently more than 7 GBs); depending on the speed of your computer and network connection, the synchronization process can take anywhere from a few hours to a day or more.
 
-To download CounosCoin Core, visit [counoscoin.org](https://counoscoin.org).
+To download CounosCoin Core, visit [counoscoin.org](https://www.counos.io).
 
 Running
 ---------------------
@@ -31,7 +31,7 @@ Drag CounosCoin-Core to your applications folder, and then run CounosCoin-Core.
 * See the documentation at the [CounosCoin Wiki](https://counoscoin.info/)
 for help and more information.
 * Ask for help on [#counoscoin](http://webchat.freenode.net?channels=counoscoin) on Freenode. If you don't have an IRC client use [webchat here](http://webchat.freenode.net?channels=counoscoin).
-* Ask for help on the [CounosCoinTalk](https://counoscointalk.io/) forums.
+* Ask for help on the [CounosCoinTalk](https://counos.world/) forums.
 
 Building
 ---------------------
@@ -61,7 +61,7 @@ The CounosCoin repo's [root README](/README.md) contains relevant information on
 - [Benchmarking](benchmarking.md)
 
 ### Resources
-* Discuss on the [CounosCoinTalk](https://counoscointalk.io/) forums.
+* Discuss on the [CounosCoinTalk](https://counos.world/) forums.
 * Discuss general CounosCoin development on #counoscoin-dev on Freenode. If you don't have an IRC client use [webchat here](http://webchat.freenode.net/?channels=counoscoin-dev).
 
 ### Miscellaneous

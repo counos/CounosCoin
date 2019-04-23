@@ -67,11 +67,11 @@ Protocol:
 Relay:
 - CounosCoin Core rounds transaction size up to the nearest 1000 bytes before calculating fees.  This size rounding behavior is to mimic fee calculation of CounosCoin v0.6 and v0.8.
 - Bitcoin's IsDust() is disabled in favor of CounosCoin's fee-based dust penalty.
-- Fee-based Dust Penalty: For each transaction output smaller than DUST_THRESHOLD (currently 0.001 CSC) the default relay/mining policy will expect an additional 1000 bytes of fee.  Otherwise the transaction will be rejected from relay/mining.  Such transactions are also disqualified from the free/high-priority transaction rule.
+- Fee-based Dust Penalty: For each transaction output smaller than DUST_THRESHOLD (currently 0.001 CCA) the default relay/mining policy will expect an additional 1000 bytes of fee.  Otherwise the transaction will be rejected from relay/mining.  Such transactions are also disqualified from the free/high-priority transaction rule.
 - Miners and relays can adjust the expected fee per-KB with the -minrelaytxfee parameter.
 
 Wallet:
-- Coins smaller than 0.00001 CSC are by default ignored by the wallet.  Use the -mininput parameter if you want to see smaller coins.
+- Coins smaller than 0.00001 CCA are by default ignored by the wallet.  Use the -mininput parameter if you want to see smaller coins.
 
 Notable changes since CounosCoin v0.8
 ===================================
