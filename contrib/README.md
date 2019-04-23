@@ -1,9 +1,17 @@
+Wallet Tools
+---------------------
+
+### [SpendFrom](/contrib/spendfrom) ###
+
+Use the raw transactions API to send coins received on a particular
+address (or addresses).
+
 Repository Tools
 ---------------------
 
 ### [Developer tools](/contrib/devtools) ###
 Specific tools for developers working on this repository.
-Contains the script `github-merge.py` for merging GitHub pull requests securely and signing them using GPG.
+Contains the script `github-merge.py` for merging github pull requests securely and signing them using GPG.
 
 ### [Verify-Commits](/contrib/verify-commits) ###
 Tool to verify that every merge commit was signed by a developer using the above `github-merge.py` script.
@@ -13,7 +21,7 @@ Construct a linear, no-fork, best version of the blockchain.
 
 ### [Qos](/contrib/qos) ###
 
-A Linux bash script that will set up traffic control (tc) to limit the outgoing bandwidth for connections to the Litecoin network. This means one can have an always-on litecoind instance running, and another local litecoind/litecoin-qt instance which connects to this node and receives blocks from it.
+A Linux bash script that will set up traffic control (tc) to limit the outgoing bandwidth for connections to the CounosCoin network. This means one can have an always-on counoscoind instance running, and another local counoscoind/counoscoin-qt instance which connects to this node and receives blocks from it.
 
 ### [Seeds](/contrib/seeds) ###
 Utility to generate the pnSeed[] array that is compiled into the client.
@@ -21,28 +29,27 @@ Utility to generate the pnSeed[] array that is compiled into the client.
 Build Tools and Keys
 ---------------------
 
-### Packaging ###
-The [Debian](/contrib/debian) subfolder contains the copyright file.
-
-All other packaging related files can be found in the [bitcoin-core/packaging](https://github.com/bitcoin-core/packaging) repository.
+### [Debian](/contrib/debian) ###
+Contains files used to package counoscoind/counoscoin-qt
+for Debian-based Linux systems. If you compile counoscoind/counoscoin-qt yourself, there are some useful files here.
 
 ### [Gitian-descriptors](/contrib/gitian-descriptors) ###
-Files used during the gitian build process. For more information about gitian, see the [the Bitcoin Core documentation repository](https://github.com/bitcoin-core/docs).
+Notes on getting Gitian builds up and running using KVM.
 
 ### [Gitian-keys](/contrib/gitian-keys)
-PGP keys used for signing Litecoin Core [Gitian release](/doc/release-process.md) results.
+PGP keys used for signing CounosCoin Core [Gitian release](/doc/release-process.md) results.
 
 ### [MacDeploy](/contrib/macdeploy) ###
 Scripts and notes for Mac builds. 
 
-### [Gitian-build](/contrib/gitian-build.py) ###
-Script for running full Gitian builds.
+### [RPM](/contrib/rpm) ###
+RPM spec file for building counoscoin-core on RPM based distributions
 
 Test and Verify Tools 
 ---------------------
 
 ### [TestGen](/contrib/testgen) ###
-Utilities to generate test vectors for the data-driven Litecoin tests.
+Utilities to generate test vectors for the data-driven CounosCoin tests.
 
 ### [Verify Binaries](/contrib/verifybinaries) ###
-This script attempts to download and verify the signature file SHA256SUMS.asc from litecoin.org.
+This script attempts to download and verify the signature file SHA256SUMS.asc from counoscoin.org.

@@ -6,7 +6,6 @@ src/litecoind
 src/litecoin-cli
 src/litecoin-tx
 src/test/test_litecoin
-src/test/test_litecoin_fuzzy
 src/qt/test/test_litecoin-qt
 
 # autoreconf
@@ -44,12 +43,6 @@ src/qt/forms/ui_*.h
 
 src/qt/test/moc*.cpp
 
-src/qt/bitcoin-qt.config
-src/qt/bitcoin-qt.creator
-src/qt/bitcoin-qt.creator.user
-src/qt/bitcoin-qt.files
-src/qt/bitcoin-qt.includes
-
 .deps
 .dirstamp
 .libs
@@ -62,6 +55,7 @@ src/qt/bitcoin-qt.includes
 *.o
 *.o-*
 *.patch
+.litecoin
 *.a
 *.pb.cc
 *.pb.h
@@ -81,15 +75,16 @@ src/qt/bitcoin-qt.includes
 *.qm
 Makefile
 litecoin-qt
-litecoin-Qt.app
-background.tiff*
+Litecoin-Qt.app
 
 # Unit-tests
 Makefile.test
 litecoin-qt_test
+src/test/buildenv.py
 
 # Resources cpp
 qrc_*.cpp
+
 # Mac specific
 .DS_Store
 build
@@ -98,7 +93,7 @@ build
 *.gcno
 *.gcda
 /*.info
-test_litecoin.coverage/
+test_bitcoin.coverage/
 total.coverage/
 coverage_percent.txt
 
@@ -106,8 +101,13 @@ coverage_percent.txt
 linux-coverage-build
 linux-build
 win32-build
-test/config.ini
-test/cache/*
+qa/pull-tester/run-bitcoind-for-test.sh
+qa/pull-tester/tests_config.py
+qa/pull-tester/cache/*
+qa/pull-tester/test.*/*
+qa/tmp
+cache/
+share/BitcoindComparisonTool.jar
 
 !src/leveldb*/Makefile
 

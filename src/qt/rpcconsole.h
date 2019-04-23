@@ -1,14 +1,14 @@
-// Copyright (c) 2011-2018 The Bitcoin Core developers
+// Copyright (c) 2011-2015 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef BITCOIN_QT_RPCCONSOLE_H
 #define BITCOIN_QT_RPCCONSOLE_H
 
-#include <qt/guiutil.h>
-#include <qt/peertablemodel.h>
+#include "guiutil.h"
+#include "peertablemodel.h"
 
-#include <net.h>
+#include "net.h"
 
 #include <QWidget>
 #include <QCompleter>
@@ -17,11 +17,6 @@
 class ClientModel;
 class PlatformStyle;
 class RPCTimerInterface;
-class WalletModel;
-
-namespace interfaces {
-    class Node;
-}
 
 namespace Ui {
     class RPCConsole;
@@ -38,17 +33,10 @@ class RPCConsole: public QWidget
     Q_OBJECT
 
 public:
-    explicit RPCConsole(interfaces::Node& node, const PlatformStyle *platformStyle, QWidget *parent);
+    explicit RPCConsole(const PlatformStyle *platformStyle, QWidget *parent);
     ~RPCConsole();
 
-    static bool RPCParseCommandLine(interfaces::Node* node, std::string &strResult, const std::string &strCommand, bool fExecute, std::string * const pstrFilteredOut = nullptr, const std::string *walletID = nullptr);
-    static bool RPCExecuteCommandLine(interfaces::Node& node, std::string &strResult, const std::string &strCommand, std::string * const pstrFilteredOut = nullptr, const std::string *walletID = nullptr) {
-        return RPCParseCommandLine(&node, strResult, strCommand, true, pstrFilteredOut, walletID);
-    }
-
     void setClientModel(ClientModel *model);
-    void addWallet(WalletModel * const walletModel);
-    void removeWallet(WalletModel* const walletModel);
 
     enum MessageClass {
         MC_ERROR,
@@ -99,8 +87,6 @@ public Q_SLOTS:
     void message(int category, const QString &message, bool html = false);
     /** Set number of connections shown in the UI */
     void setNumConnections(int count);
-    /** Set network state shown in the UI */
-    void setNetworkActive(bool networkActive);
     /** Set number of blocks and last block date shown in the UI */
     void setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool headers);
     /** Set size (number of transactions and memory usage) of the mempool in the UI */
@@ -111,8 +97,6 @@ public Q_SLOTS:
     void scrollToEnd();
     /** Handle selection of peer in peers list */
     void peerSelected(const QItemSelection &selected, const QItemSelection &deselected);
-    /** Handle selection caching before update */
-    void peerLayoutAboutToChange();
     /** Handle updated peer information */
     void peerLayoutChanged();
     /** Disconnect a selected node on the Peers tab */
@@ -127,9 +111,10 @@ public Q_SLOTS:
 Q_SIGNALS:
     // For RPC command executor
     void stopExecutor();
-    void cmdRequest(const QString &command, const QString &walletID);
+    void cmdRequest(const QString &command);
 
 private:
+    static QString FormatBytes(quint64 bytes);
     void startExecutor();
     void setTrafficGraphRange(int mins);
     /** show detailed information on ui about selected node */
@@ -145,24 +130,18 @@ private:
 
     };
 
-    interfaces::Node& m_node;
-    Ui::RPCConsole* const ui;
-    ClientModel *clientModel = nullptr;
+    Ui::RPCConsole *ui;
+    ClientModel *clientModel;
     QStringList history;
-    int historyPtr = 0;
-    QString cmdBeforeBrowsing;
-    QList<NodeId> cachedNodeids;
-    const PlatformStyle* const platformStyle;
-    RPCTimerInterface *rpcTimerInterface = nullptr;
-    QMenu *peersTableContextMenu = nullptr;
-    QMenu *banTableContextMenu = nullptr;
-    int consoleFontSize = 0;
-    QCompleter *autoCompleter = nullptr;
+    int historyPtr;
+    NodeId cachedNodeid;
+    const PlatformStyle *platformStyle;
+    RPCTimerInterface *rpcTimerInterface;
+    QMenu *peersTableContextMenu;
+    QMenu *banTableContextMenu;
+    int consoleFontSize;
+    QCompleter *autoCompleter;
     QThread thread;
-    QString m_last_wallet_id;
-
-    /** Update UI with latest network info from model. */
-    void updateNetworkState();
 };
 
 #endif // BITCOIN_QT_RPCCONSOLE_H
