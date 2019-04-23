@@ -15,7 +15,7 @@
 
 # change the following variables to match your new coin
 COIN_NAME="CounosCoin"
-COIN_UNIT="CSC"
+COIN_UNIT="CCA"
 # 42 million coins at total (counoscoin total supply is 84000000)
 TOTAL_SUPPLY=21000000
 MAINNET_PORT="11963"
