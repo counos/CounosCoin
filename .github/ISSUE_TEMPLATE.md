@@ -1,8 +1,8 @@
 <!-- This issue tracker is only for technical issues related to Litecoin Core.
 
-General litecoin questions and/or support requests and are best directed to the [litecointalk.io forums](https://litecointalk.io/).
+General counoscoin questions and/or support requests and are best directed to the [counos.world forums](https://counos.world/).
 
-For reporting security issues, please contact the Litecoin developers on the #litecoin-dev Freenode IRC channel or alternatively you can email us at contact@litecoin.org.
+For reporting security issues, please contact the Litecoin developers on the #counoscoin-dev Freenode IRC channel or alternatively you can email us at contact@counos.io.
 
 If the node is "stuck" during sync or giving "block checksum mismatch" errors, please ensure your hardware is stable by running memtest and observe CPU temperature with a load-test tool such as linpack before creating an issue! -->
 

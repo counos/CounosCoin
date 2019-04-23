@@ -1,10 +1,10 @@
 #!/bin/bash -e
-# This script is an experiment to clone litecoin into a 
+# This script is an experiment to clone counoscoin into a 
 # brand new coin + blockchain.
 # The script will perform the following steps:
 # 1) create first a docker image with ubuntu ready to build and run the new coin daemon
 # 2) clone GenesisH0 and mine the genesis blocks of main, test and regtest networks in the container (this may take a lot of time)
-# 3) clone litecoin
+# 3) clone counoscoin
 # 4) replace variables (keys, merkle tree hashes, timestamps..)
 # 5) build new coin
 # 6) run 4 docker nodes and connect to each other
@@ -16,7 +16,7 @@
 # change the following variables to match your new coin
 COIN_NAME="CounosCoin"
 COIN_UNIT="CSC"
-# 42 million coins at total (litecoin total supply is 84000000)
+# 42 million coins at total (counoscoin total supply is 84000000)
 TOTAL_SUPPLY=21000000
 MAINNET_PORT="11963"
 TESTNET_PORT="11973"
@@ -34,14 +34,14 @@ CHAIN="-regtest"
 GENESIS_REWARD_PUBKEY=044e0d4bc823e20e14d66396a64960c993585400c53f1e6decb273f249bfeba0e71f140ffa7316f2cdaaae574e7d72620538c3e7791ae9861dfe84dd2955fc85e8
 
 # dont change the following variables unless you know what you are doing
-LITECOIN_BRANCH="0.13-master"
+CounosCoin_BRANCH="0.13-master"
 GENESISHZERO_REPOS=https://github.com/lhartikk/GenesisH0
-LITECOIN_REPOS=https://github.com/litecoin-project/litecore-litecoin.git
-LITECOIN_PUB_KEY=040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9
-LITECOIN_MERKLE_HASH=97ddfbbae6be97fd6cdf3e7ca13232a3afff2353e29badfab7f73011edd4ced9
-LITECOIN_MAIN_GENESIS_HASH=12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2
-LITECOIN_TEST_GENESIS_HASH=4966625a4b2851d9fdee139e56211a0d88575f59ed816ff5e6a63deb4e3e29a0
-LITECOIN_REGTEST_GENESIS_HASH=530827f38f93b43ed12af0b3ad25a288dc02ed74d6d7857862df51fc56c416f9
+COUNOS_REPOS=https://github.com/counos/CounosCoin.git
+CounosCoin_PUB_KEY=040184710fa689ad5023690c80f3a49c8f13f8d45b8c857fbcbc8bc4a8e4d3eb4b10f4d4604fa08dce601aaf0f470216fe1b51850b4acf21b179c45070ac7b03a9
+CounosCoin_MERKLE_HASH=97ddfbbae6be97fd6cdf3e7ca13232a3afff2353e29badfab7f73011edd4ced9
+CounosCoin_MAIN_GENESIS_HASH=12a765e31ffd4059bada1e25190f6e98c99d9714d334efa41a195a7e7e04bfe2
+CounosCoin_TEST_GENESIS_HASH=4966625a4b2851d9fdee139e56211a0d88575f59ed816ff5e6a63deb4e3e29a0
+CounosCoin_REGTEST_GENESIS_HASH=530827f38f93b43ed12af0b3ad25a288dc02ed74d6d7857862df51fc56c416f9
 MINIMUM_CHAIN_WORK_MAIN=0x000000000000000000000000000000000000000000000006805c7318ce2736c0
 MINIMUM_CHAIN_WORK_TEST=0x000000000000000000000000000000000000000000000000000000054cb9e7a0
 COIN_NAME_LOWER=$(echo $COIN_NAME | tr '[:upper:]' '[:lower:]')
@@ -186,35 +186,35 @@ newcoin_replace_vars()
         echo "Warning: $COIN_NAME_LOWER already existing. Not replacing any values"
         return 0
     fi
-    if [ ! -d "litecoin-master" ]; then
-        # clone litecoin and keep local cache
-        git clone -b $LITECOIN_BRANCH $LITECOIN_REPOS litecoin-master
+    if [ ! -d "counoscoin-master" ]; then
+        # clone counoscoin and keep local cache
+        git clone -b $CounosCoin_BRANCH $CounosCoin_REPOS counoscoin-master
     else
         echo "Updating master branch"
-        pushd litecoin-master
+        pushd counoscoin-master
         git pull
         popd
     fi
 
-    git clone -b $LITECOIN_BRANCH litecoin-master $COIN_NAME_LOWER
+    git clone -b $CounosCoin_BRANCH counoscoin-master $COIN_NAME_LOWER
 
     pushd $COIN_NAME_LOWER
 
     # first rename all directories
-    for i in $(find . -type d | grep -v "^./.git" | grep litecoin); do 
-        git mv $i $(echo $i| $SED "s/litecoin/$COIN_NAME_LOWER/")
+    for i in $(find . -type d | grep -v "^./.git" | grep counoscoin); do 
+        git mv $i $(echo $i| $SED "s/counoscoin/$COIN_NAME_LOWER/")
     done
 
     # then rename all files
-    for i in $(find . -type f | grep -v "^./.git" | grep litecoin); do
-        git mv $i $(echo $i| $SED "s/litecoin/$COIN_NAME_LOWER/")
+    for i in $(find . -type f | grep -v "^./.git" | grep counoscoin); do
+        git mv $i $(echo $i| $SED "s/counoscoin/$COIN_NAME_LOWER/")
     done
 
-    # now replace all litecoin references to the new coin name
+    # now replace all counoscoin references to the new coin name
     for i in $(find . -type f | grep -v "^./.git"); do
         $SED -i "s/Litecoin/$COIN_NAME/g" $i
-        $SED -i "s/litecoin/$COIN_NAME_LOWER/g" $i
-        $SED -i "s/LITECOIN/$COIN_NAME_UPPER/g" $i
+        $SED -i "s/counoscoin/$COIN_NAME_LOWER/g" $i
+        $SED -i "s/CounosCoin/$COIN_NAME_UPPER/g" $i
         $SED -i "s/LTC/$COIN_UNIT/g" $i
     done
 
@@ -228,13 +228,13 @@ newcoin_replace_vars()
     $SED -i "s/= 9333;/= $MAINNET_PORT;/" src/chainparams.cpp
     $SED -i "s/= 19335;/= $TESTNET_PORT;/" src/chainparams.cpp
 
-    $SED -i "s/$LITECOIN_PUB_KEY/$MAIN_PUB_KEY/" src/chainparams.cpp
-    $SED -i "s/$LITECOIN_MERKLE_HASH/$MERKLE_HASH/" src/chainparams.cpp
-    $SED -i "s/$LITECOIN_MERKLE_HASH/$MERKLE_HASH/" src/qt/test/rpcnestedtests.cpp
+    $SED -i "s/$CounosCoin_PUB_KEY/$MAIN_PUB_KEY/" src/chainparams.cpp
+    $SED -i "s/$CounosCoin_MERKLE_HASH/$MERKLE_HASH/" src/chainparams.cpp
+    $SED -i "s/$CounosCoin_MERKLE_HASH/$MERKLE_HASH/" src/qt/test/rpcnestedtests.cpp
 
-    $SED -i "0,/$LITECOIN_MAIN_GENESIS_HASH/s//$MAIN_GENESIS_HASH/" src/chainparams.cpp
-    $SED -i "0,/$LITECOIN_TEST_GENESIS_HASH/s//$TEST_GENESIS_HASH/" src/chainparams.cpp
-    $SED -i "0,/$LITECOIN_REGTEST_GENESIS_HASH/s//$REGTEST_GENESIS_HASH/" src/chainparams.cpp
+    $SED -i "0,/$CounosCoin_MAIN_GENESIS_HASH/s//$MAIN_GENESIS_HASH/" src/chainparams.cpp
+    $SED -i "0,/$CounosCoin_TEST_GENESIS_HASH/s//$TEST_GENESIS_HASH/" src/chainparams.cpp
+    $SED -i "0,/$CounosCoin_REGTEST_GENESIS_HASH/s//$REGTEST_GENESIS_HASH/" src/chainparams.cpp
 
     $SED -i "0,/2084524493/s//$MAIN_NONCE/" src/chainparams.cpp
     $SED -i "0,/293345/s//$TEST_NONCE/" src/chainparams.cpp
