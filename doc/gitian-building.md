@@ -76,7 +76,11 @@ In the VirtualBox GUI click "New" and choose the following parameters in the wiz
 
 After creating the VM, we need to configure it.
 
-- Click the `Settings` button, then go to the `Network` tab. Adapter 1 should be attached to `NAT`.
+- Click the `Settings` button, then go to `System` tab and `Processor` sub-tab. Increase the number of processors to the number of cores on your machine if you want builds to be faster.
+
+![](gitian-building/system_settings.png)
+
+- Go to the `Network` tab. Adapter 1 should be attached to `NAT`.
 
 ![](gitian-building/network_settings.png)
 
@@ -95,14 +99,14 @@ After creating the VM, we need to configure it.
 
 - Click `Ok` twice to save.
 
-Get the [Debian 8.x net installer](http://cdimage.debian.org/debian-cd/8.5.0/amd64/iso-cd/debian-8.5.0-amd64-netinst.iso) (a more recent minor version should also work, see also [Debian Network installation](https://www.debian.org/CD/netinst/)).
-This DVD image can be validated using a SHA256 hashing tool, for example on
+Get the [Debian 8.x net installer](http://cdimage.debian.org/mirror/cdimage/archive/8.5.0/amd64/iso-cd/debian-8.5.0-amd64-netinst.iso) (a more recent minor version should also work, see also [Debian Network installation](https://www.debian.org/CD/netinst/)).
+This DVD image can be [validated](https://www.debian.org/CD/verify) using a SHA256 hashing tool, for example on
 Unixy OSes by entering the following in a terminal:
 
     echo "ad4e8c27c561ad8248d5ebc1d36eb172f884057bfeb2c22ead823f59fa8c3dff  debian-8.5.0-amd64-netinst.iso" | sha256sum -c
     # (must return OK)
 
-Then start the VM. On the first launch you will be asked for a CD or DVD image. Choose the downloaded iso.
+Then start the VM. On the first launch you will be asked for a CD or DVD image. Choose the downloaded ISO.
 
 ![](gitian-building/select_startup_disk.png)
 
@@ -131,6 +135,7 @@ To select a different button, press `Tab`.
   - Leave domain name empty.
 
 ![](gitian-building/debian_install_5_configure_the_network.png)
+![](gitian-building/debian_install_6_domain_name.png)
 
 - Choose a root password and enter it twice (remember it for later)
 
@@ -336,7 +341,9 @@ There will be a lot of warnings printed during the build of the image. These can
 Getting and building the inputs
 --------------------------------
 
-Follow the instructions in [doc/release-process.md](release-process.md#fetch-and-build-inputs-first-time-or-when-dependency-versions-change)
+At this point you have two options, you can either use the automated script (found in [contrib/gitian-build.sh](/contrib/gitian-build.sh)) or you could manually do everything by following this guide. If you're using the automated script, then run it with the "--setup" command. Afterwards, run it with the "--build" command (example: "contrib/gitian-build.sh -b signer 0.13.0"). Otherwise ignore this.
+
+Follow the instructions in [doc/release-process.md](release-process.md#fetch-and-create-inputs-first-time-or-when-dependency-versions-change)
 in the counoscoin repository under 'Fetch and create inputs' to install sources which require
 manual intervention. Also optionally follow the next step: 'Seed the Gitian sources cache
 and offline git repositories' which will fetch the remaining files required for building
@@ -458,7 +465,7 @@ and follow the steps in the build process as normal.
     gpg: skipped "laanwj": secret key not available
 
 When you execute `gsign` you will get an error from GPG, which can be ignored. Copy the resulting `.assert` files
-in `gitian.sigs.ltc` to your signing machine and do
+in `gitian.sigs` to your signing machine and do
 
 ```bash
     gpg --detach-sign ${VERSION}-linux/${SIGNER}/counoscoin-linux-build.assert
@@ -473,5 +480,5 @@ Uploading signatures
 ---------------------
 
 After building and signing you can push your signatures (both the `.assert` and `.assert.sig` files) to the
-[gitian.sigs.ltc](https://github.com/counoscoin-project/gitian.sigs.ltc/) repository, or if that's not possible create a pull
-request. You can also mail the files to thrasher (thrasher@addictionsoftware.com) and he will commit them.
+[counoscoin-project/gitian.sigs.ltc](https://github.com/counoscoin-project/gitian.sigs.ltc/) repository, or if that's not possible create a pull
+request. You can also mail the files to thrasher (thrasher@addictionsofware.com) and he will commit them.

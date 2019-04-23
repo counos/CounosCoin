@@ -2,12 +2,24 @@
 <context>
     <name>AddressBookPage</name>
     <message>
+        <source>Right-click to edit address or label</source>
+        <translation>पते या लेबल को संपादित करने के लिए राइट-क्लिक करें</translation>
+    </message>
+    <message>
         <source>Create a new address</source>
         <translation>नया पता लिखिए !</translation>
     </message>
     <message>
+        <source>&amp;New</source>
+        <translation>&amp;NEW</translation>
+    </message>
+    <message>
         <source>Copy the currently selected address to the system clipboard</source>
         <translation>चुनिन्दा पते को सिस्टम क्लिपबोर्ड पर कापी करे !</translation>
+    </message>
+    <message>
+        <source>Delete the currently selected address from the list</source>
+        <translation>सूची से वर्तमान में चयनित पता हटाएं</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -79,7 +91,7 @@
         <translation>पहचान शब्द/अक्षर जो वॉलेट एनक्रिपशन के लिए इस्तेमाल किया है उसे बदलिए!</translation>
     </message>
     <message>
-        <source>Bitcoin</source>
+        <source>CounosCoin</source>
         <translation>बीटकोइन</translation>
     </message>
     <message>
@@ -138,7 +150,7 @@
         <source>Wallet is &lt;b&gt;encrypted&lt;/b&gt; and currently &lt;b&gt;locked&lt;/b&gt;</source>
         <translation>वॉलेट एन्क्रिप्टेड है तथा अभी लॉक्ड है</translation>
     </message>
-</context>
+    </context>
 <context>
     <name>CoinControlDialog</name>
     <message>
@@ -195,6 +207,13 @@
     </message>
     </context>
 <context>
+    <name>ModalOverlay</name>
+    <message>
+        <source>Form</source>
+        <translation>फार्म</translation>
+    </message>
+    </context>
+<context>
     <name>OpenURIDialog</name>
     </context>
 <context>
@@ -240,6 +259,9 @@
         <translation>लागू नही
 </translation>
     </message>
+    </context>
+<context>
+    <name>QObject::QObject</name>
     </context>
 <context>
     <name>QRImageWidget</name>

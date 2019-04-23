@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2015 The Bitcoin Core developers
+// Copyright (c) 2011-2016 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -131,11 +131,22 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     move(QApplication::desktop()->screenGeometry().center() - r.center());
 
     subscribeToCoreSignals();
+    installEventFilter(this);
 }
 
 SplashScreen::~SplashScreen()
 {
     unsubscribeFromCoreSignals();
+}
+
+bool SplashScreen::eventFilter(QObject * obj, QEvent * ev) {
+    if (ev->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(ev);
+        if(keyEvent->text()[0] == 'q' && breakAction != nullptr) {
+            breakAction();
+        }
+    }
+    return QObject::eventFilter(obj, ev);
 }
 
 void SplashScreen::slotFinish(QWidget *mainWin)
@@ -164,10 +175,23 @@ static void ShowProgress(SplashScreen *splash, const std::string &title, int nPr
     InitMessage(splash, title + strprintf("%d", nProgress) + "%");
 }
 
-#ifdef ENABLE_WALLET
-static void ConnectWallet(SplashScreen *splash, CWallet* wallet)
+void SplashScreen::setBreakAction(const std::function<void(void)> &action)
 {
-    wallet->ShowProgress.connect(boost::bind(ShowProgress, splash, _1, _2));
+    breakAction = action;
+}
+
+static void SetProgressBreakAction(SplashScreen *splash, const std::function<void(void)> &action)
+{
+    QMetaObject::invokeMethod(splash, "setBreakAction",
+        Qt::QueuedConnection,
+        Q_ARG(std::function<void(void)>, action));
+}
+
+#ifdef ENABLE_WALLET
+void SplashScreen::ConnectWallet(CWallet* wallet)
+{
+    wallet->ShowProgress.connect(boost::bind(ShowProgress, this, _1, _2));
+    connectedWallets.push_back(wallet);
 }
 #endif
 
@@ -176,8 +200,9 @@ void SplashScreen::subscribeToCoreSignals()
     // Connect signals to client
     uiInterface.InitMessage.connect(boost::bind(InitMessage, this, _1));
     uiInterface.ShowProgress.connect(boost::bind(ShowProgress, this, _1, _2));
+    uiInterface.SetProgressBreakAction.connect(boost::bind(SetProgressBreakAction, this, _1));
 #ifdef ENABLE_WALLET
-    uiInterface.LoadWallet.connect(boost::bind(ConnectWallet, this, _1));
+    uiInterface.LoadWallet.connect(boost::bind(&SplashScreen::ConnectWallet, this, _1));
 #endif
 }
 
@@ -187,8 +212,9 @@ void SplashScreen::unsubscribeFromCoreSignals()
     uiInterface.InitMessage.disconnect(boost::bind(InitMessage, this, _1));
     uiInterface.ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2));
 #ifdef ENABLE_WALLET
-    if(pwalletMain)
-        pwalletMain->ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2));
+    for (CWallet* const & pwallet : connectedWallets) {
+        pwallet->ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2));
+    }
 #endif
 }
 

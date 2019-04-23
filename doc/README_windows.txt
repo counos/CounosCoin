@@ -1,5 +1,5 @@
-CounosCoin Core 0.13.2
-=====================
+CounosCoin Core
+=============
 
 Intro
 -----
