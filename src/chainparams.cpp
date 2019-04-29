@@ -80,12 +80,12 @@ public:
         consensus.BIP65Height = 0; // bab3041e8977e0dc3eeff63fe707b92bde1dd449d8efafb248c27c8264cc311a
         consensus.BIP66Height = 0; // 7aceee012833fa8952f8835d8b1b3ae233cd6ab08fdb27a771d2bd7bdc491894
         consensus.powLimit = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"); 
-        consensus.nPowTargetTimespan = 6* 60 * 60; // 6 houre
+        consensus.nPowTargetTimespan =  14*24*60 * 60; // one houre
         consensus.nPowTargetSpacing = 10 * 60;
         consensus.fPowAllowMinDifficultyBlocks = false;
-        consensus.fPowNoRetargeting = false;
+        consensus.fPowNoRetargeting = false; 
         consensus.nRuleChangeActivationThreshold =1916 ; // 75% of 8064
-        consensus.nMinerConfirmationWindow = 36; // nPowTargetTimespan / nPowTargetSpacing 
+        consensus.nMinerConfirmationWindow = 2016; // nPowTargetTimespan / nPowTargetSpacing 
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].bit = 28;
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nStartTime = 1199145601; // January 1, 2008
         consensus.vDeployments[Consensus::DEPLOYMENT_TESTDUMMY].nTimeout = 1230767999; // December 31, 2008
@@ -101,10 +101,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_SEGWIT].nTimeout = 1517356801; // January 31st, 2018
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x00");
+        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000000000004e62353a78");
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x59c9b9d3fec105bdc716d84caa7579503d5b05b73618d0bf2d5fa639f780a011"); //1353397
+        consensus.defaultAssumeValid = uint256S("0x1e1d0bdfced483edd4ecacf06bd8bfaceda4063e945663b99e4ccc346777d116"); //1353397
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
