@@ -1049,11 +1049,17 @@ CAmount nSubsidy =  COIN;
       nSubsidy = 16812000 * COIN;
    else if(nHeight <= 27515)
            nSubsidy = 4 * COIN;
-	   else  if(nHeight <= 62470)
+	    else if(nHeight <= 62530) 
 		     nSubsidy = 1.5 * COIN;
-		 else
-			  nSubsidy = 1.5 * COIN / 1000;
-         
+           else 
+			{
+			   nSubsidy = 1.5 * COIN / 10000;
+			   const CBlockIndex* pindex = chainActive.Tip(); 
+			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
+			   
+			  if(timeDiff > 7*60 && pindex->nHeight > 62530)
+				  nSubsidy =  nSubsidy *10000;
+	   }
     // Subsidy is cut in half every 524,000 blocks which will occur approximately every 10 years.
     nSubsidy >>= halvings;
     return nSubsidy;
@@ -1834,7 +1840,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
+    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus() ) ;
     if (block.vtx[0]->GetValueOut() > blockReward)
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
