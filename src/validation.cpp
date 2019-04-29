@@ -1049,8 +1049,10 @@ CAmount nSubsidy =  COIN;
       nSubsidy = 16812000 * COIN;
    else if(nHeight <= 27515)
            nSubsidy = 4 * COIN;
-	   else 
+	   else  if(nHeight <= 62470)
 		     nSubsidy = 1.5 * COIN;
+		 else
+			  nSubsidy = 1.5 * COIN / 1000;
          
     // Subsidy is cut in half every 524,000 blocks which will occur approximately every 10 years.
     nSubsidy >>= halvings;
