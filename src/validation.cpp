@@ -1057,7 +1057,7 @@ CAmount nSubsidy =  COIN;
 			   const CBlockIndex* pindex = chainActive.Tip(); 
 			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
 			   
-			  if(timeDiff > 7*60 && pindex->nHeight > 62530)
+			  if(timeDiff > 7*60 && pindex->nHeight > 62470)
 				  nSubsidy =  nSubsidy *10000;
 	   }
     // Subsidy is cut in half every 524,000 blocks which will occur approximately every 10 years.
