@@ -4333,12 +4333,31 @@ int CMerkleTx::GetDepthInMainChain(const CBlockIndex* &pindexRet) const
     pindexRet = pindex;
     return ((nIndex == -1) ? (-1) : 1) * (chainActive.Height() - pindex->nHeight + 1);
 }
+int CMerkleTx::GetCoinHeight(const CBlockIndex* &pindexRet) const
+{
+    if (hashUnset())
+        return 0;
+
+    AssertLockHeld(cs_main);
+
+    // Find the block it claims to be in
+    BlockMap::iterator mi = mapBlockIndex.find(hashBlock);
+    if (mi == mapBlockIndex.end())
+        return 0;
+    CBlockIndex* pindex = (*mi).second;
+    if (!pindex || !chainActive.Contains(pindex))
+        return 0;
+
+    pindexRet = pindex;
+    return pindex->nHeight;
+}
 
 int CMerkleTx::GetBlocksToMaturity() const
 {
     if (!IsCoinBase())
         return 0;
-    return std::max(0, (COINBASE_MATURITY+1) - GetDepthInMainChain());
+    const int CoinBase_Maturity = (GetCoinHeight() <  COINBASE_MATURITY_RuleChangeAfterHeight)?COINBASE_MATURITY:COINBASE_MATURITY2;
+    return std::max(0, ( CoinBase_Maturity+  1) - GetDepthInMainChain());
 }
 
 

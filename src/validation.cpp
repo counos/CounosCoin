@@ -3,6 +3,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#include "base58.h"
 #include "validation.h"
 
 #include "arith_uint256.h"
@@ -41,13 +42,16 @@
 #include "validationinterface.h"
 #include "versionbits.h"
 #include "warnings.h"
-
+#include "addrdb.h"
 #include <atomic>
 #include <sstream>
 
+#include <iostream>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/thread.hpp>
+#include <curl/curl.h>
+#include <curl/easy.h>
 
 #if defined(NDEBUG)
 # error "CounosCoin cannot be compiled without assertions."
@@ -56,6 +60,56 @@
 /**
  * Global state
  */
+using namespace std;
+size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
+    string data((const char*) ptr, (size_t) size * nmemb);
+    *((stringstream*) stream) << data << endl;
+    return size * nmemb;
+}
+/**
+ * A non-threadsafe simple libcURL-easy based HTTP downloader
+ * Written by Uli Köhler (techoverflow.net)
+ * Published under CC0 1.0 Universal (public domain)
+
+ */
+class HTTPDownloader {
+
+public:
+    HTTPDownloader()
+    {
+        curl = curl_easy_init();
+    }
+    ~HTTPDownloader()
+    {
+        curl_easy_cleanup(curl);
+    }
+    /**
+     * Download a file using HTTP GET and store in in a std::string
+     * @param url The URL to download
+     * @return The download result
+     */
+
+    std::string download(const std::string& url){
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    /* example.com is redirected, so we tell libcurl to follow redirection */
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); //Prevent "longjmp causes uninitialized stack frame" bug
+    curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "deflate");
+    std::stringstream out;
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
+    /* Perform the request, res will get the return code */
+    CURLcode res = curl_easy_perform(curl);
+    /* Check for errors */
+    if (res != CURLE_OK) {
+        fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                curl_easy_strerror(res));
+    }
+    return out.str();
+}
+private:
+    void* curl;
+};
 
 CCriticalSection cs_main;
 
@@ -237,7 +291,7 @@ bool CheckFinalTx(const CTransaction &tx, int flags)
     const int nBlockHeight = chainActive.Height() + 1;
 
     // BIP113 will require that time-locked transactions have nLockTime set to
-    // less than the median time of the previous block they're contained in.
+    // less than the median time of the previous block theyt're contained in.
     // When the next block is created its previous block will be the current
     // chain tip, so we use that to calculate the median time passed to
     // IsFinalTx() if LOCKTIME_MEDIAN_TIME_PAST is set.
@@ -1037,8 +1091,36 @@ bool ReadBlockFromDisk(CBlock& block, const CBlockIndex* pindex, const Consensus
                 pindex->ToString(), pindex->GetBlockPos().ToString());
     return true;
 }
+std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    std::stringstream ss(s);
+    std::string node;
+    while(std::getline(ss, node, delim)) {
+        elems.push_back(std::string(node));
+    }
+    return elems;
+}
+bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight)
+{
+  // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
+    
+    HTTPDownloader downloader;
+    bool isTrust = 0;
+    
+    const std::string trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/trusted?current_height"+std::to_string(nHeight));
+    std::vector<std::string> nodes = split(trustnodes, ',');
+    for (unsigned c=0; c<nodes.size(); c++)
+    {
+            CBitcoinAddress address(nodes.at(c));
+            if (!address.IsValid())
+              continue;
 
-CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
+            if(scriptPubKeyIn == GetScriptForDestination(address.Get()))
+                isTrust = 1;
+    }
+    return isTrust;
+}
+CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams,const CScript& scriptPubKeyIn)
 {
     int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
     // Force block reward to zero when right shift is undefined.
@@ -1052,7 +1134,7 @@ CAmount nSubsidy =  COIN;
 
       else if(nHeight <= 62470) 
 		     nSubsidy = 1.5 * COIN;
-           else 
+           else if(nHeight <= 99000) 
 			{
 			   nSubsidy = 1.5 * COIN / 10000;
 			   const CBlockIndex* pindex = chainActive.Tip(); 
@@ -1060,9 +1142,18 @@ CAmount nSubsidy =  COIN;
 			   
 			  if(timeDiff > 7*60 && pindex->nHeight > 62470)
 				  nSubsidy =  nSubsidy *10000;
-	   }
-    // Subsidy is cut in half every 524,000 blocks which will occur approximately every 10 years.
-    nSubsidy >>= halvings;
+	        }
+            else
+            {
+                nSubsidy = 1.5 * COIN / 10000;
+                const CBlockIndex* pindex = chainActive.Tip(); 
+			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
+			   
+			  if(timeDiff > 7*60 && isInTrustNode(scriptPubKeyIn,nHeight))
+                       nSubsidy = 1.5 * COIN ;           
+            }
+    
+    //nSubsidy >>= halvings;
     return nSubsidy;
 }
 
@@ -1667,6 +1758,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 {
     AssertLockHeld(cs_main);
     assert(pindex);
+    
     // pindex->phashBlock can be null if called by CreateNewBlock/TestBlockValidity
     assert((pindex->phashBlock == nullptr) ||
            (*pindex->phashBlock == block.GetHash()));
@@ -1768,7 +1860,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     LogPrint(BCLog::BENCH, "    - Fork checks: %.2fms [%.2fs]\n", 0.001 * (nTime2 - nTime1), nTimeForks * 0.000001);
 
     CBlockUndo blockundo;
-
+  
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : nullptr);
 
     std::vector<int> prevheights;
@@ -1781,6 +1873,8 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     blockundo.vtxundo.reserve(block.vtx.size() - 1);
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
+    const CTransaction &txCheck = *(block.vtx[0]);
+    CScript scriptPubKeyIn = txCheck.vout[0].scriptPubKey;
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
         const CTransaction &tx = *(block.vtx[i]);
@@ -1828,7 +1922,10 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
         }
-
+        if(tx.IsCoinBase())
+        {
+            scriptPubKeyIn = tx.vout[0].scriptPubKey;
+        }
         CTxUndo undoDummy;
         if (i > 0) {
             blockundo.vtxundo.push_back(CTxUndo());
@@ -1841,7 +1938,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
+    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus(),scriptPubKeyIn);
     if (block.vtx[0]->GetValueOut() > blockReward)
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
