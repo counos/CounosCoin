@@ -4360,6 +4360,13 @@ int CMerkleTx::GetBlocksToMaturity() const
     return std::max(0, ( CoinBase_Maturity+  1) - GetDepthInMainChain());
 }
 
+int CMerkleTx::GetCoinBaseMaturity() const
+{
+    if (!IsCoinBase())
+        return 0;
+    const int CoinBase_Maturity = (GetCoinHeight() <  COINBASE_MATURITY_RuleChangeAfterHeight)?COINBASE_MATURITY:COINBASE_MATURITY2;
+    return  CoinBase_Maturity;
+}
 
 bool CMerkleTx::AcceptToMemoryPool(const CAmount& nAbsurdFee, CValidationState& state)
 {

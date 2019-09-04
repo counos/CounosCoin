@@ -250,6 +250,7 @@ public:
      */
     int GetDepthInMainChain(const CBlockIndex* &pindexRet) const;
     int GetCoinHeight(const CBlockIndex* &pindexRet) const;
+    int GetCoinBaseMaturity() const;
     int GetDepthInMainChain() const { const CBlockIndex *pindexRet; return GetDepthInMainChain(pindexRet); }
     int GetCoinHeight() const { const CBlockIndex *pindexRet; return GetCoinHeight(pindexRet); }
     bool IsInMainChain() const { const CBlockIndex *pindexRet; return GetDepthInMainChain(pindexRet) > 0; }
