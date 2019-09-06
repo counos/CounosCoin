@@ -37,7 +37,7 @@ Other Changes in new Release of CCA :
   -- if more than 30 minutes left from last block  creation time, and no new block created, Required work will be decrease to 1000 * PowLimit, 
   -- and if last 25 blocks created in less than 50 minutes (‌each block in 2 minutes) network will increase Require work 4 * last known work required. 
 
-All mining poos which verified as a Trust node, will be indicated by a Trust node Logo, 
+All mining pools which verified as a Trust node, will be indicated by a Trust node Logo, 
 
 
 
