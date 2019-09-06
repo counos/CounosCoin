@@ -18,6 +18,7 @@ static const int64_t MAX_BLOCK_SIGOPS_COST = 80000;
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
 static const int COINBASE_MATURITY = 100;
 static const int COINBASE_MATURITY2 = 100000;
+/* Adding Trust node, Change coinbase maturity and PoW */
 static const int COINBASE_MATURITY_RuleChangeAfterHeight = 98500;
 
 static const int WITNESS_SCALE_FACTOR = 4;
