@@ -27,7 +27,10 @@ The block creation time window is still in consideration, such that the 1.5 rewa
 And, the transaction fees will be given to all node, as it used to be so.
 Other Changes in new Release of CCA :
 - Coin base maturity priod  will be increase to 100,000 Blocks, it means that all reward for new blocks will be spendable after large amount of blocks confirm that. So its not easy to earn and spend CCA trough mining process. Its very important for mining pools and miners which like to send Hashes to CCA network.
-Also there are some other changes in PoW rules, normally blocks must create every 10 minutes, but based on current difficulty and network hash, the time maybe changed, by new PoW rules, if more than 30 minutes left from last block  creation time, and no new block created, Required work will be decrease to 1000 * PowLimit, and if last 25 blocks created in less than 50 minutes (‌each block in 2 minutes) network will increase Require work 4 * last known work required. 
+- Also there are some other changes in PoW rules, normally blocks must create every 10 minutes, but based on current difficulty and network hash, the time maybe changed, by new PoW rules, 
+  -- if more than 30 minutes left from last block  creation time, and no new block created, Required work will be decrease to 1000 * PowLimit, 
+  -- and if last 25 blocks created in less than 50 minutes (‌each block in 2 minutes) network will increase Require work 4 * last known work required. 
+
 All mining poos which verified as a Trust node, will be indicated by a Trust node Logo, 
 
 
