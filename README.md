@@ -18,7 +18,7 @@ For more information, as well as an immediately useable, binary version of
 the CounosCoin Core software, see [https://www.counos.io](https://www.counos.io).
 
 
-Counos Coin (CCA) version 0.15.2 
+Counos Coin (CCA) version 0.15.3 
 --------------------------------
 From the block 98500, 1.5 reward coins will only be given to trusted nodes.
 Trusted nodes are those nodes that have at least 500,000 CCA.
