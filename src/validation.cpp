@@ -1105,18 +1105,26 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight)
   // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
     
     HTTPDownloader downloader;
-    bool isTrust = 0;
-    
-    const std::string trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/trusted?current_height"+std::to_string(nHeight));
+    bool isTrust = false;
+    //std::string URL;
+    //sprintf(URL,)
+    const std::string trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/trusted?current_height="+std::to_string(nHeight));
     std::vector<std::string> nodes = split(trustnodes, ',');
+    
+    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s \n",trustnodes);
+    
+     CTxDestination blockRewardAddress;
+    if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
+        return error("Can't Find Correct Address : %s",trustnodes);
     for (unsigned c=0; c<nodes.size(); c++)
     {
             CBitcoinAddress address(nodes.at(c));
             if (!address.IsValid())
               continue;
-
-            if(scriptPubKeyIn == GetScriptForDestination(address.Get()))
-                isTrust = 1;
+            //LogPrintf("Compare scriptPubKey  %s vs %s",blockRewardAddress,nodes.at(c));
+            
+            if(blockRewardAddress == address.Get())
+                isTrust = true;
     }
     return isTrust;
 }
@@ -1134,7 +1142,7 @@ CAmount nSubsidy =  COIN;
 
       else if(nHeight <= 62470) 
 		     nSubsidy = 1.5 * COIN;
-           else if(nHeight <= 99000) 
+           else if(nHeight <= COINBASE_MATURITY_RuleChangeAfterHeight) 
 			{
 			   nSubsidy = 1.5 * COIN / 10000;
 			   const CBlockIndex* pindex = chainActive.Tip(); 
@@ -1148,7 +1156,7 @@ CAmount nSubsidy =  COIN;
                 nSubsidy = 1.5 * COIN / 10000;
                 const CBlockIndex* pindex = chainActive.Tip(); 
 			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
-			   
+			   LogPrintf( "Check Trust Nodes :: time = %i \n",timeDiff);
 			  if(timeDiff > 7*60 && isInTrustNode(scriptPubKeyIn,nHeight))
                        nSubsidy = 1.5 * COIN ;           
             }

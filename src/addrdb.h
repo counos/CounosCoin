@@ -98,16 +98,5 @@ public:
     bool Write(const banmap_t& banSet);
     bool Read(banmap_t& banSet);
 };
-/** Access to the TrustNode Wallet address database (trustnodes.dat) */
-class TrustNodesDB
-{
-private:
-    fs::path pathAddr;
-public:
-    TrustNodesDB();
-    bool Write(const TrustNodesDB& addr);
-    bool Read(TrustNodesDB& addr);
-    static bool Read(TrustNodesDB& addr, CDataStream& ssTrustNode);
-};
 
 #endif // BITCOIN_ADDRDB_H
