@@ -18,16 +18,16 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
    // Special rule after adding trust nodes
     // each 24 bocks we will adjust difficulty if there is a 
     // big delay on creating new blocks or speedup this process to lesst than one min
-  /*   LogPrintf(" Required work becuase of block time creation : %d - %d",pindexLast->nHeight ,params.DifficultyAdjustmentInterval()/84);
+    LogPrintf(" Required work becuase of block time creation : %d - %d",pindexLast->nHeight ,params.DifficultyAdjustmentInterval()/84);
    if((pindexLast->nHeight >= COINBASE_MATURITY_RuleChangeAfterHeight && 
-          (pindexLast->nHeight+1) % (params.DifficultyAdjustmentInterval()/84 )!= 0))
+          (pindexLast->nHeight+1) %  params.DifficultyAdjustmentInterval() != 0))
           {
           
             // more than 30 mins and no block, difficulty will be changes to 10000* lower diff
             if (pblock->GetBlockTime() > (pindexLast->GetBlockTime() + params.nPowTargetSpacing*3))
                 {
-                  LogPrintf("Need Lower Diff : %d - %d",nProofOfWorkLimit/100000 ,pindexLast->nBits);
-                  return nProofOfWorkLimit/100000;
+                  LogPrintf("Need Higher nBits: %d - %d",nProofOfWorkLimit ,pindexLast->nBits);
+                  return nProofOfWorkLimit;
                 }
             
             else
@@ -41,14 +41,14 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
                 LogPrintf("Increase Required work becuase of block time creation : %d - %d",pblock->GetBlockTime() ,pindex->GetBlockTime() + params.nPowTargetSpacing*5);
                 // Return the last non-special-10000-wmin-difficulty-rules-block multiple 4
                 pindex = pindexLast;
-                while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nProofOfWorkLimit*1000)
+                while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nProofOfWorkLimit)
                     pindex = pindex->pprev;
                 return pindex->nBits*4;
             }
             }
         return pindexLast->nBits;
          }
-        */
+        
     // Only change once per difficulty adjustment interval
     if (((pindexLast->nHeight+1) % params.DifficultyAdjustmentInterval() != 0))
     {
