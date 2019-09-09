@@ -18,14 +18,22 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
    // Special rule after adding trust nodes
     // each 24 bocks we will adjust difficulty if there is a 
     // big delay on creating new blocks or speedup this process to lesst than one min
-  /*   LogPrintf(" Required work becuase of block time creation : %d - %d",pindexLast->nHeight ,params.DifficultyAdjustmentInterval()/84);
+    LogPrintf(" Required work becuase of block time creation : %d - %d",pindexLast->nHeight ,params.DifficultyAdjustmentInterval()/84);
    if((pindexLast->nHeight >= COINBASE_MATURITY_RuleChangeAfterHeight && 
-          (pindexLast->nHeight+1) % (params.DifficultyAdjustmentInterval()/84 )!= 0))
+          (pindexLast->nHeight+1) % params.DifficultyAdjustmentInterval() != 0))
           {
           
             // more than 30 mins and no block, difficulty will be changes to 10000* lower diff
             if (pblock->GetBlockTime() > (pindexLast->GetBlockTime() + params.nPowTargetSpacing*3))
+<<<<<<< HEAD
                 return nProofOfWorkLimit/1000;            
+=======
+                {
+                  LogPrintf("Need Higher nBits: %d - %d",nProofOfWorkLimit ,pindexLast->nBits);
+                  return nProofOfWorkLimit;
+                }
+            
+>>>>>>> a63f5dea4b933b56953f31f1cf4f9465b2571fb5
             else
             {
              // blocks generate every 2 mins in last 25 blocks
@@ -44,7 +52,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
             }
         return pindexLast->nBits;
          }
-        */
+        
     // Only change once per difficulty adjustment interval
     if (((pindexLast->nHeight+1) % params.DifficultyAdjustmentInterval() != 0))
     {
