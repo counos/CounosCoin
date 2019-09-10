@@ -19,7 +19,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     // each 24 bocks we will adjust difficulty if there is a 
     // big delay on creating new blocks or speedup this process to lesst than one min
     LogPrintf(" Required work becuase of block time creation : %d - %d",pindexLast->nHeight ,params.DifficultyAdjustmentInterval()/84);
-   if((pindexLast->nHeight >= COINBASE_MATURITY_RuleChangeAfterHeight + 10 && 
+   if((pindexLast->nHeight > COINBASE_MATURITY_RuleChangeAfterHeight + 10 && 
           (pindexLast->nHeight+1) %  params.DifficultyAdjustmentInterval() != 0))
           {
           
