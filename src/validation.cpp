@@ -52,6 +52,7 @@
 #include <boost/thread.hpp>
 #include <curl/curl.h>
 #include <curl/easy.h>
+#include <univalue.h>
 
 #if defined(NDEBUG)
 # error "CounosCoin cannot be compiled without assertions."
