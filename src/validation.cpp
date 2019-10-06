@@ -1108,7 +1108,7 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
     bool isTrust = false;
     //std::string URL;
     //sprintf(URL,)
-    const std::string trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/trusted?current_height="+std::to_string(nHeight));
+    std::string trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/trusted?current_height="+std::to_string(nHeight));
     if(typeOfCheck == 2)   // Valid Miner
       {
         trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/valid?current_height="+std::to_string(nHeight));
