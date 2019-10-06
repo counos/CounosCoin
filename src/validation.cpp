@@ -1121,7 +1121,7 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
     
      CTxDestination blockRewardAddress;
     if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
-        return error("Can't Find Correct Address : %s",(string)scriptPubKeyIn);
+        return error("Can't Find Correct Address : %s",scriptPubKeyIn.Serialize);
     for (unsigned c=0; c<nodes.size(); c++)
     {
             CBitcoinAddress address(nodes.at(c));
