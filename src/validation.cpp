@@ -1120,8 +1120,14 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
     LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s \n",trustnodes);
     
      CTxDestination blockRewardAddress;
+     UniValue out(UniValue::VOBJ);
+    ScriptPubKeyToUniv(scriptPubKeyIn, out, true);
+
+    UniValue u = find_value(out, "addresses");
+    UniValue uv = u.getValues()[0];
+    const std::string miningAddress = uv.get_str();
     if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
-        return error("Can't Find Correct Address : %s",scriptPubKeyIn.Serialize);
+        return error("Can't Find Correct Address : %s",miningAddress);
     for (unsigned c=0; c<nodes.size(); c++)
     {
             CBitcoinAddress address(nodes.at(c));
