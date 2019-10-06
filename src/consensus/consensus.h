@@ -20,6 +20,7 @@ static const int COINBASE_MATURITY = 100;
 static const int COINBASE_MATURITY2 = 100000;
 /* Adding Trust node, Change coinbase maturity and PoW */
 static const int COINBASE_MATURITY_RuleChangeAfterHeight = 98500;
+static const int HeightOnlyTrustNodeCanMine = 144458;
 
 static const int WITNESS_SCALE_FACTOR = 4;
 

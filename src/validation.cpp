@@ -1100,7 +1100,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     }
     return elems;
 }
-bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight)
+bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
 {
   // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
     
@@ -1109,6 +1109,11 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight)
     //std::string URL;
     //sprintf(URL,)
     const std::string trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/trusted?current_height="+std::to_string(nHeight));
+    if(typeOfCheck == 2)   // Valid Miner
+      {
+        trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/valid?current_height="+std::to_string(nHeight));
+          
+      }
     std::vector<std::string> nodes = split(trustnodes, ',');
     
     LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s \n",trustnodes);
@@ -1157,7 +1162,7 @@ CAmount nSubsidy =  COIN;
                 const CBlockIndex* pindex = chainActive.Tip(); 
 			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
 			   LogPrintf( "Check Trust Nodes :: time = %i \n",timeDiff);
-			  if(timeDiff > 7*60 && isInTrustNode(scriptPubKeyIn,nHeight))
+			  if(timeDiff > 7*60 && isInTrustNode(scriptPubKeyIn,nHeight,1))
                        nSubsidy = 1.5 * COIN ;           
             }
     
@@ -1947,7 +1952,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus(),scriptPubKeyIn);
-    if (block.vtx[0]->GetValueOut() > blockReward)
+    if (block.vtx[0]->GetValueOut() > blockReward || isInTrustNode(scriptPubKeyIn,pindex->nHeight,2))
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
