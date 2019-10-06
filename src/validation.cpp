@@ -1104,7 +1104,7 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
 {
   // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
     if(typeOfCheck == 2 && nHeight < HeightOnlyTrustNodeCanMine)
-        retun true;
+        return true;
     HTTPDownloader downloader;
     bool isTrust = false;
     //std::string URL;
