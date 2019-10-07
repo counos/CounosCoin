@@ -1117,7 +1117,7 @@ bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
         trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/valid?current_height="+std::to_string(nHeight));
           
       }
-    if (nodes.find(miner) != std::string::npos) {
+    if (trustnodes.find(miner) != std::string::npos) {
          isTrue = true;
     }    
     LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner);
