@@ -1947,7 +1947,19 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
               UniValue uv = u.getValues()[0];
               miner = uv.get_str();  
             }
-            catch(exception& e){}  
+            catch(exception& e){
+                try
+            {
+            UniValue out(UniValue::VOBJ);
+            ScriptPubKeyToUniv(tx.vout[1].scriptPubKey, out, true);
+
+             UniValue u = find_value(out, "addresses");
+              UniValue uv = u.getValues()[0];
+              miner = uv.get_str();  
+            }
+            catch(exception& e){}
+
+            }  
            
             LogPrintf("miner address :%$ /n",miner);
         }
