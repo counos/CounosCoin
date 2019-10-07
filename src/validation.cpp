@@ -1118,7 +1118,7 @@ bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
           
       }
     if (trustnodes.find(miner) != std::string::npos) {
-         isTrue = true;
+         isTrust = true;
     }    
     LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner);
     
