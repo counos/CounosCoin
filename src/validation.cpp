@@ -1119,7 +1119,7 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
       }
     std::vector<std::string> nodes = split(trustnodes, ',');
     
-    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,HexStr(scriptPubKeyIn.begin(), scriptPubKeyIn.end());
+    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,HexStr(scriptPubKeyIn.begin(), scriptPubKeyIn.end()));
     
      CTxDestination blockRewardAddress;
     
