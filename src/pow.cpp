@@ -15,7 +15,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
 {
     assert(pindexLast != nullptr);
     unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
-    if(pindexLast->nHeight > HeightOnlyTrustNodeCanMine+2000)
+    if(pindexLast->nHeight > HeightOnlyTrustNodeCanMine+3000)
         nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact() / 1.094;
    // Special rule after adding trust nodes
     // each 24 bocks we will adjust difficulty if there is a 
