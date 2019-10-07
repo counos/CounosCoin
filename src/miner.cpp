@@ -20,6 +20,8 @@
 #include "policy/feerate.h"
 #include "policy/policy.h"
 #include "pow.h"
+#include "core_io.h"
+#include <univalue.h>
 #include "primitives/transaction.h"
 #include "script/standard.h"
 #include "timedata.h"
@@ -160,14 +162,22 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     nLastBlockTx = nBlockTx;
     nLastBlockWeight = nBlockWeight;
+    std::string miner ="DEF" ;
+  
 
-    // Create coinbase transaction.
+    UniValue out(UniValue::VOBJ);
+    ScriptPubKeyToUniv(scriptPubKeyIn, out, true);
+
+    UniValue u = find_value(out, "addresses");
+    UniValue uv = u.getValues()[0];
+    miner = uv.get_str();  
+  // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-    coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus(),scriptPubKeyIn);
+    coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus(),miner);
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
