@@ -1128,7 +1128,7 @@ bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
     for (unsigned c=0; c<nodes.size(); c++)
     {
             
-            if(miner == address
+            if(miner == nodes.at(i))
                 isTrust = true;
     }
     return isTrust;
