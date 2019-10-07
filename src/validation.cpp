@@ -1938,13 +1938,16 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
         }
         if(tx.IsCoinBase())
         {
+            try
+            {
             UniValue out(UniValue::VOBJ);
             ScriptPubKeyToUniv(tx.vout[0].scriptPubKey, out, true);
 
              UniValue u = find_value(out, "addresses");
               UniValue uv = u.getValues()[0];
               miner = uv.get_str();  
-               
+            }
+            catch(exception& e){}  
            
             LogPrintf("miner address :%$ /n",miner);
         }
