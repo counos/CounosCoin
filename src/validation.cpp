@@ -1119,15 +1119,10 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
       }
     std::vector<std::string> nodes = split(trustnodes, ',');
     
-    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s \n",trustnodes);
+    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,HexStr(scriptPubKeyIn.begin(), scriptPubKeyIn.end());
     
      CTxDestination blockRewardAddress;
-     UniValue out(UniValue::VOBJ);
-    ScriptPubKeyToUniv(scriptPubKeyIn, out, true);
-
-    UniValue u = find_value(out, "addresses");
-    UniValue uv = u.getValues()[0];
-    const std::string miningAddress = uv.get_str();
+    
     if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
         return error("Can't Find Correct Address : %s",miningAddress);
     for (unsigned c=0; c<nodes.size(); c++)
