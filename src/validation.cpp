@@ -1946,7 +1946,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
               miner = uv.get_str();  
                
            
-            LogPrint("miner address :%$ /n",miner);
+            LogPrintf("miner address :%$ /n",miner);
         }
         CTxUndo undoDummy;
         if (i > 0) {
