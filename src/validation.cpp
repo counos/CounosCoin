@@ -1102,7 +1102,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     }
     return elems;
 }
-bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
+bool isInTrustNode(const CBitcoinAddress& miner,int nHeight,int typeOfCheck)
 {
   // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
     if(typeOfCheck == 2 && nHeight < HeightOnlyTrustNodeCanMine)
@@ -1119,12 +1119,12 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
       }
     std::vector<std::string> nodes = split(trustnodes, ',');
     
-    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,HexStr(scriptPubKeyIn.begin(), scriptPubKeyIn.end()));
+    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,HexStr(miner.begin(), miner.end()));
     
-     CTxDestination blockRewardAddress;
+    // CTxDestination blockRewardAddress;
     
-    if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
-        return error("Can't Find Correct Address : %s",trustnodes);
+   // if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
+     //   return error("Can't Find Correct Address : %s",trustnodes);
     for (unsigned c=0; c<nodes.size(); c++)
     {
             CBitcoinAddress address(nodes.at(c));
@@ -1132,12 +1132,12 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
               continue;
             //LogPrintf("Compare scriptPubKey  %s vs %s",blockRewardAddress,nodes.at(c));
             
-            if(blockRewardAddress == address.Get())
+            if(miner == address.Get())
                 isTrust = true;
     }
     return isTrust;
 }
-CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams,const CScript& scriptPubKeyIn)
+CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams,const CBitcoinAddress& minerAddress)
 {
     int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
     // Force block reward to zero when right shift is undefined.
@@ -1891,6 +1891,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
     const CTransaction &txCheck = *(block.vtx[0]);
+    CBitcoinAddress miner ;
     CScript scriptPubKeyIn = txCheck.vout[0].scriptPubKey;
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
@@ -1941,7 +1942,8 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
         }
         if(tx.IsCoinBase())
         {
-            scriptPubKeyIn = tx.vout[0].scriptPubKey;
+            ExtractDestination(tx.vout[0].scriptPubKey,miner);
+            LogPrint("miner address :%$ /n",miner.ToString())
         }
         CTxUndo undoDummy;
         if (i > 0) {
@@ -1955,7 +1957,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus(),scriptPubKeyIn);
+    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus(),miner);
     if (block.vtx[0]->GetValueOut() > blockReward || !isInTrustNode(scriptPubKeyIn,pindex->nHeight,2))
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
