@@ -163,7 +163,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     // Create coinbase transaction.
     CTxDestination miner;
-    ExtractDestination(scriptPubKeyIn,miner)
+    ExtractDestination(scriptPubKeyIn,miner);
     CMutableTransaction coinbaseTx;
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
