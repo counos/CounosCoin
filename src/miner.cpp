@@ -20,6 +20,7 @@
 #include "policy/feerate.h"
 #include "policy/policy.h"
 #include "pow.h"
+#include <univalue.h>
 #include "primitives/transaction.h"
 #include "script/standard.h"
 #include "timedata.h"
@@ -164,7 +165,7 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
   
 
     UniValue out(UniValue::VOBJ);
-    ScriptPubKeyToUniv(txout.scriptPubKey, out, true);
+    ScriptPubKeyToUniv(scriptPubKeyIn, out, true);
 
     UniValue u = find_value(out, "addresses");
     UniValue uv = u.getValues()[0];
