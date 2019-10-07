@@ -46,7 +46,7 @@
 #include "core_io.h"
 #include <atomic>
 #include <sstream>
-
+#include <univalue.h>
 #include <iostream>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string/join.hpp>
@@ -1887,7 +1887,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
     const CTransaction &txCheck = *(block.vtx[0]);
-    const std::string miner ="DEF" ;
+     std::string miner ="DEF" ;
     CScript scriptPubKeyIn = txCheck.vout[0].scriptPubKey;
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
@@ -1938,11 +1938,13 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
         }
         if(tx.IsCoinBase())
         {
-            
-               if(ExtractDestination(tx.vout[0].scriptPubKey, addressRetout)){
-                      miner = CBitcoinAddress(addressRetout).ToString();
-          
-                }
+            UniValue out(UniValue::VOBJ);
+            ScriptPubKeyToUniv(tx.vout[0].scriptPubKey, out, true);
+
+             UniValue u = find_value(out, "addresses");
+              UniValue uv = u.getValues()[0];
+              miner = uv.get_str();  
+               
            
             LogPrint("miner address :%$ /n",miner)
         }
