@@ -1102,7 +1102,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     }
     return elems;
 }
-bool isInTrustNode(const CBitcoinAddress& miner,int nHeight,int typeOfCheck)
+bool isInTrustNode(CTxDestination& miner,int nHeight,int typeOfCheck)
 {
   // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
     if(typeOfCheck == 2 && nHeight < HeightOnlyTrustNodeCanMine)
@@ -1119,7 +1119,7 @@ bool isInTrustNode(const CBitcoinAddress& miner,int nHeight,int typeOfCheck)
       }
     std::vector<std::string> nodes = split(trustnodes, ',');
     
-    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,HexStr(miner.begin(), miner.end()));
+    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner.ToString();
     
     // CTxDestination blockRewardAddress;
     
@@ -1137,7 +1137,7 @@ bool isInTrustNode(const CBitcoinAddress& miner,int nHeight,int typeOfCheck)
     }
     return isTrust;
 }
-CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams,const CBitcoinAddress& minerAddress)
+CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams,CTxDestination& minerAddress)
 {
     int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
     // Force block reward to zero when right shift is undefined.
@@ -1891,7 +1891,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
     const CTransaction &txCheck = *(block.vtx[0]);
-    CBitcoinAddress miner ;
+    CTxDestination miner ;
     CScript scriptPubKeyIn = txCheck.vout[0].scriptPubKey;
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
