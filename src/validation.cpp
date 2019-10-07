@@ -1124,7 +1124,7 @@ bool isInTrustNode(const CScript& scriptPubKeyIn,int nHeight,int typeOfCheck)
      CTxDestination blockRewardAddress;
     
     if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
-        return error("Can't Find Correct Address : %s",miningAddress);
+        return error("Can't Find Correct Address : %s",trustnodes);
     for (unsigned c=0; c<nodes.size(); c++)
     {
             CBitcoinAddress address(nodes.at(c));
