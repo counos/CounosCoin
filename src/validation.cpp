@@ -43,6 +43,7 @@
 #include "versionbits.h"
 #include "warnings.h"
 #include "addrdb.h"
+#include "core_io.h"
 #include <atomic>
 #include <sstream>
 
