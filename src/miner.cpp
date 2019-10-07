@@ -161,16 +161,15 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     nLastBlockTx = nBlockTx;
     nLastBlockWeight = nBlockWeight;
     std::string miner ="DEF" ;
-    // Create coinbase transaction.
-     if(ExtractDestination(scriptPubKeyIn, addressRetout)){
-                      miner = CBitcoinAddress(addressRetout).ToString();
+  
+
     UniValue out(UniValue::VOBJ);
     ScriptPubKeyToUniv(txout.scriptPubKey, out, true);
 
     UniValue u = find_value(out, "addresses");
     UniValue uv = u.getValues()[0];
     miner = uv.get_str();  
-    
+  // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
