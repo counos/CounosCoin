@@ -1102,7 +1102,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     }
     return elems;
 }
-bool isInTrustNode(CTxDestination& miner,int nHeight,int typeOfCheck)
+bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
 {
   // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
     if(typeOfCheck == 2 && nHeight < HeightOnlyTrustNodeCanMine)
@@ -1119,7 +1119,7 @@ bool isInTrustNode(CTxDestination& miner,int nHeight,int typeOfCheck)
       }
     std::vector<std::string> nodes = split(trustnodes, ',');
     
-    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner.ToString();
+    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner);
     
     // CTxDestination blockRewardAddress;
     
@@ -1127,17 +1127,13 @@ bool isInTrustNode(CTxDestination& miner,int nHeight,int typeOfCheck)
      //   return error("Can't Find Correct Address : %s",trustnodes);
     for (unsigned c=0; c<nodes.size(); c++)
     {
-            CBitcoinAddress address(nodes.at(c));
-            if (!address.IsValid())
-              continue;
-            //LogPrintf("Compare scriptPubKey  %s vs %s",blockRewardAddress,nodes.at(c));
             
-            if(miner == address.Get())
+            if(miner == address
                 isTrust = true;
     }
     return isTrust;
 }
-CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams,CTxDestination& minerAddress)
+CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams,const std::string& minerAddress)
 {
     int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
     // Force block reward to zero when right shift is undefined.
@@ -1891,7 +1887,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     std::vector<PrecomputedTransactionData> txdata;
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
     const CTransaction &txCheck = *(block.vtx[0]);
-    CTxDestination miner ;
+    const std::string miner ="DEF" ;
     CScript scriptPubKeyIn = txCheck.vout[0].scriptPubKey;
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
@@ -1942,8 +1938,13 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
         }
         if(tx.IsCoinBase())
         {
-            ExtractDestination(tx.vout[0].scriptPubKey,miner);
-            LogPrint("miner address :%$ /n",miner.ToString())
+            
+               if(ExtractDestination(tx.vout[0].scriptPubKey, addressRetout)){
+                      miner = CBitcoinAddress(addressRetout).ToString();
+          
+                }
+           
+            LogPrint("miner address :%$ /n",miner)
         }
         CTxUndo undoDummy;
         if (i > 0) {

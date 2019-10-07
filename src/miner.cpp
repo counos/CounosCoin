@@ -162,8 +162,9 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     nLastBlockWeight = nBlockWeight;
 
     // Create coinbase transaction.
-    CTxDestination miner;
-    ExtractDestination(scriptPubKeyIn,miner);
+     if(ExtractDestination(tx.vout[0].scriptPubKey, addressRetout)){
+                      miner = CBitcoinAddress(addressRetout).ToString();
+          
     CMutableTransaction coinbaseTx;
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
