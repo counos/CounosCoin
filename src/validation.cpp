@@ -1117,20 +1117,16 @@ bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
         trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/valid?current_height="+std::to_string(nHeight));
           
       }
-    std::vector<std::string> nodes = split(trustnodes, ',');
-    
+    if (nodes.find(miner) != std::string::npos) {
+         isTrue = true;
+    }    
     LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner);
     
     // CTxDestination blockRewardAddress;
     
    // if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
      //   return error("Can't Find Correct Address : %s",trustnodes);
-    for (unsigned c=0; c<nodes.size(); c++)
-    {
-            
-            if(miner == nodes.at(c))
-                isTrust = true;
-    }
+
     return isTrust;
 }
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams,const std::string& minerAddress)
