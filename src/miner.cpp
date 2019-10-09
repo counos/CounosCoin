@@ -29,7 +29,7 @@
 #include "util.h"
 #include "utilmoneystr.h"
 #include "validationinterface.h"
-
+#include <exception>
 #include <algorithm>
 #include <queue>
 #include <utility>
@@ -164,13 +164,17 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
     nLastBlockWeight = nBlockWeight;
     std::string miner ="DEF" ;
   
-
+try{
     UniValue out(UniValue::VOBJ);
     ScriptPubKeyToUniv(scriptPubKeyIn, out, true);
 
     UniValue u = find_value(out, "addresses");
     UniValue uv = u.getValues()[0];
     miner = uv.get_str();  
+ LogPrintf("Assembler %s \n",miner);
+ }
+catch(const std::exception& e){}
+
   // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
     coinbaseTx.vin.resize(1);
