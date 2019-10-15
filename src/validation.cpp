@@ -1970,26 +1970,30 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     }
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
-	int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
-    bool isEnoughTimePassed = true;
-    if((pindex->nHeight > HeightOnlyTrustNodeCanMine + 10000) && timeDiff < 7.5*60 )
-         isEnoughTimePassed = false;
+
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus(),miner);
     if (block.vtx[0]->GetValueOut() > blockReward )
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
-    if ( !isInTrustNode(miner,pindex->nHeight,2))
+   if(pindex->nHeight > HeightOnlyTrustNodeCanMine)
+   {
+   if ( !isInTrustNode(miner,pindex->nHeight,2))
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays to invalid miner  (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID,"bad-cb-amount");
-    if ( isEnoughTimePassed)
+    int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
+    bool isEnoughTimePassed = true;
+    if(pindex->nHeight > (HeightOnlyTrustNodeCanMine + 20000) && timeDiff < 7.5*60 )
+         isEnoughTimePassed = false;
+    if ( !isEnoughTimePassed)
         return state.DoS(100,
-                         error("ConnectBlock(): not enough between 2 blocks (time left=%d vs time must=%d)",
+                         error("ConnectBlock(): not enough time between 2 blocks (time left=%d vs time must=%d)",
                                timeDiff, 7.5*60),
                                REJECT_INVALID,"bad-block time");
+   }
     if (!control.Wait())
         return state.DoS(100, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
