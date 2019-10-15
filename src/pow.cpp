@@ -31,7 +31,6 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
                   LogPrintf("Need Higher nBits: %d - %d",nProofOfWorkLimit ,pindexLast->nBits);
                   return nProofOfWorkLimit;
                 }
-            
             else
             {
              // blocks generate every 2 mins in last 25 blocks

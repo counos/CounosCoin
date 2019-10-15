@@ -1105,7 +1105,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
 bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
 {
   // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
-    if(typeOfCheck == 2 && nHeight < HeightOnlyTrustNodeCanMine)
+    if((typeOfCheck == 2 && nHeight < HeightOnlyTrustNodeCanMine) || (typeOfCheck == 2 && miner =="DEF"))
         return true;
     HTTPDownloader downloader;
     bool isTrust = false;
@@ -1972,12 +1972,16 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime3 - nTime2), 0.001 * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * 0.000001);
 
     CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus(),miner);
-    if (block.vtx[0]->GetValueOut() > blockReward || !isInTrustNode(miner,pindex->nHeight,2))
+    if (block.vtx[0]->GetValueOut() > blockReward )
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
-
+    if ( !isInTrustNode(miner,pindex->nHeight,2))
+        return state.DoS(100,
+                         error("ConnectBlock(): coinbase pays to invalid miner  (actual=%d vs limit=%d)",
+                               block.vtx[0]->GetValueOut(), blockReward),
+                               REJECT_INVALID,"bad-cb-amount");
     if (!control.Wait())
         return state.DoS(100, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
