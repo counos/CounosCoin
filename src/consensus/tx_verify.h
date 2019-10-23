@@ -7,6 +7,9 @@
 
 #include <stdint.h>
 #include <vector>
+#include <iostream> 
+#include <string>
+
 
 class CBlockIndex;
 class CCoinsViewCache;
@@ -74,5 +77,6 @@ bool EvaluateSequenceLocks(const CBlockIndex& block, std::pair<int, int64_t> loc
  * Consensus critical. Takes as input a list of heights at which tx's inputs (in order) confirmed.
  */
 bool SequenceLocks(const CTransaction &tx, int flags, std::vector<int>* prevHeights, const CBlockIndex& block);
-
+/**Burned Address is a Counos Address which will not permit to send any coin**/
+bool isABurnedAddress(const std::string& senderAddress,int nHeight,const std::string& BurnedAddresses);
 #endif // BITCOIN_CONSENSUS_TX_VERIFY_H

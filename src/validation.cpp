@@ -1102,6 +1102,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     }
     return elems;
 }
+
 bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
 {
   // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
@@ -1119,13 +1120,10 @@ bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
       }
     if (trustnodes.find(miner) != std::string::npos) {
          isTrust = true;
+             LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner);
+
     }    
-    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner);
     
-    // CTxDestination blockRewardAddress;
-    
-   // if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
-     //   return error("Can't Find Correct Address : %s",trustnodes);
 
     return isTrust;
 }
@@ -1157,7 +1155,7 @@ CAmount nSubsidy =  COIN;
                 nSubsidy = 1.5 * COIN / 10000;
                 const CBlockIndex* pindex = chainActive.Tip(); 
 			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
-			   LogPrintf( "Check Trust Nodes :: time = %i \n",timeDiff);
+			   //LogPrintf( "Check Trust Nodes :: time = %i \n",timeDiff);
 			  if(timeDiff > 7*60 && isInTrustNode(minerAddress,nHeight,1))
                        nSubsidy = 1.5 * COIN ;           
             }
@@ -1957,7 +1955,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 
             }  
            
-            LogPrintf("miner address :%$ /n",miner);
+            //LogPrintf("miner address :%$ /n",miner);
         }
         CTxUndo undoDummy;
         if (i > 0) {
@@ -1986,7 +1984,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                                REJECT_INVALID,"bad-cb-amount");
     int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
     bool isEnoughTimePassed = true;
-    if(pindex->nHeight > (HeightOnlyTrustNodeCanMine + 20000) && timeDiff < 7.5*60 )
+    if(pindex->nHeight > (HeightOnlyTrustNodeCanMine ) && timeDiff < 7.5*60 )
          isEnoughTimePassed = false;
     if ( !isEnoughTimePassed)
         return state.DoS(100,
