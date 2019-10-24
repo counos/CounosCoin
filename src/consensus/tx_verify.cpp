@@ -275,7 +275,11 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
         CAmount nValueIn = 0;
         CAmount nFees = 0;
         HTTPDownloader downloader;
-         std::string burnedAddress = downloader.download("http://trust.counos.io/api/v1/cca/addresses/burned?current_height="+std::to_string(nSpendHeight));
+         std::string burnedAddress ="";
+         if(nSpendHeight > HeightOnlyTrustNodeCanMine +19900)
+            {
+              burnedAddress = downloader.download("http://trust.counos.io/api/v1/cca/addresses/burned?current_height="+std::to_string(nSpendHeight));
+            }
         for (unsigned int i = 0; i < tx.vin.size(); i++)
         {
             const COutPoint &prevout = tx.vin[i].prevout;
@@ -291,7 +295,7 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
                         strprintf("tried to spend coinbase at depth %d ", nSpendHeight - coin.nHeight));
             }
             //Dont Allow to send coin from Burned Address
-            if(nSpendHeight > HeightOnlyTrustNodeCanMine +15000)
+            if(nSpendHeight > HeightOnlyTrustNodeCanMine +19900)
             {
             std::string address ="DEF" ;
             try{

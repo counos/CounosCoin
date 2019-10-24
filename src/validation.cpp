@@ -1975,21 +1975,25 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
-   if(pindex->nHeight > HeightOnlyTrustNodeCanMine)
+   if(pindex->nHeight > HeightOnlyTrustNodeCanMine )
    {
    if ( !isInTrustNode(miner,pindex->nHeight,2))
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays to invalid miner  (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID,"bad-cb-amount");
-    int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
+    LogPrintf("Block Time : Block Height: %d , block time  %d \n",pindex->nHeight, pindex->GetBlockTime() );
+   }
+   if(pindex->nHeight > HeightOnlyTrustNodeCanMine + 20000)
+   {
+    int64_t timeDiff = (int64_t)block.nTime - pindex->GetBlockTime();
     bool isEnoughTimePassed = true;
     if(pindex->nHeight > (HeightOnlyTrustNodeCanMine ) && timeDiff < 7.5*60 )
          isEnoughTimePassed = false;
     if ( !isEnoughTimePassed)
         return state.DoS(100,
-                         error("ConnectBlock(): not enough time between 2 blocks (time left=%d vs time must=%d)",
-                               timeDiff, 7.5*60),
+                         error("ConnectBlock(): not enough time between 2 blocks Current Block : %d (time left=%d vs time must=%d)",
+                               pindex->nHeight,timeDiff, 7.5*60),
                                REJECT_INVALID,"bad-block time");
    }
     if (!control.Wait())
