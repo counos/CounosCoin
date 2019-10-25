@@ -276,7 +276,7 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
         CAmount nFees = 0;
         HTTPDownloader downloader;
          std::string burnedAddress ="";
-         if(nSpendHeight > HeightOnlyTrustNodeCanMine +20000)
+         if(nSpendHeight > HeightOnlyTrustNodeCanMine )
             {
               burnedAddress = downloader.download("http://trust.counos.io/api/v1/cca/addresses/burned?current_height="+std::to_string(nSpendHeight));
             }
