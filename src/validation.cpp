@@ -1982,14 +1982,16 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                          error("ConnectBlock(): coinbase pays to invalid miner  (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID,"bad-cb-amount");
-    LogPrintf("Block Time : Block Height: %d , block time  %d \n",pindex->nHeight, pindex->GetBlockTime() );
-   }
+   
+   } 
    if(pindex->nHeight > HeightOnlyTrustNodeCanMine + 20000)
    {
-    int64_t timeDiff = (int64_t)block.nTime - pindex->GetBlockTime();
+    int64_t timeDiff = (int64_t)block.nTime - pindex->pprev->GetBlockTime();
     bool isEnoughTimePassed = true;
-    if(pindex->nHeight > (HeightOnlyTrustNodeCanMine ) && timeDiff < 7.5*60 )
+    if( timeDiff < 7.5*60 )
          isEnoughTimePassed = false;
+         //LogPrintf("Block Time : Block Height: %d , block time  %d : %d Diff %d\n",pindex->nHeight, block.nTime , pindex->pprev->GetBlockTime() ,timeDiff);
+
     if ( !isEnoughTimePassed)
         return state.DoS(100,
                          error("ConnectBlock(): not enough time between 2 blocks Current Block : %d (time left=%d vs time must=%d)",

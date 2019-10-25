@@ -276,7 +276,7 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
         CAmount nFees = 0;
         HTTPDownloader downloader;
          std::string burnedAddress ="";
-         if(nSpendHeight > HeightOnlyTrustNodeCanMine +19900)
+         if(nSpendHeight > HeightOnlyTrustNodeCanMine +20000)
             {
               burnedAddress = downloader.download("http://trust.counos.io/api/v1/cca/addresses/burned?current_height="+std::to_string(nSpendHeight));
             }
@@ -337,16 +337,10 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
 
 bool isABurnedAddress(const std::string& senderAddress,int nHeight,const std::string&  BurnedAddresses)
 {
-   
     bool isBurned = false;
-
-   
-    
     if (BurnedAddresses.find(senderAddress) != std::string::npos) {
          isBurned = true;
          LogPrintf("Check Sender Address :: Current burned address  = %s Sender Address: %s\n",BurnedAddresses,senderAddress);
-    }    
-    
-    
+    }       
     return isBurned;
 }
