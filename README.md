@@ -44,7 +44,8 @@ Counos Coin (CCA) version 0.15.3.2
 
 From block 144457, only valid miners will be able to mine new blocks. A valid miner is a miner who has a balance of 10,000 coins.
 
-Also from 164457, blocks that mined in less time than 7.5 mins
+Also, from block 164457, the time window between two created blocks should at least be 7.5 minutes. In other words, if a block is created in less than 7.5 minutes after the creation of the previous block, it will not be valid.
+
 
 How to setup node?
 ----------------
