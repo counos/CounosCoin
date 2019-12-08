@@ -1102,6 +1102,7 @@ std::vector<std::string> split(const std::string &s, char delim) {
     }
     return elems;
 }
+
 bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
 {
   // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
@@ -1119,13 +1120,10 @@ bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
       }
     if (trustnodes.find(miner) != std::string::npos) {
          isTrust = true;
-    }
-    LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner);
+             LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner);
 
-    // CTxDestination blockRewardAddress;
-
-   // if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
-     //   return error("Can't Find Correct Address : %s",trustnodes);
+    }    
+    
 
     return isTrust;
 }
@@ -1157,7 +1155,7 @@ CAmount nSubsidy =  COIN;
                 nSubsidy = 1.5 * COIN / 10000;
                 const CBlockIndex* pindex = chainActive.Tip();
 			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
-			   LogPrintf( "Check Trust Nodes :: time = %i \n",timeDiff);
+			   //LogPrintf( "Check Trust Nodes :: time = %i \n",timeDiff);
 			  if(timeDiff > 7*60 && isInTrustNode(minerAddress,nHeight,1))
                        nSubsidy = 1.5 * COIN ;
             }
@@ -1955,9 +1953,9 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
             }
             catch(exception& e){}
 
-            }
-
-            LogPrintf("miner address :%$ /n",miner);
+            }  
+           
+            //LogPrintf("miner address :%$ /n",miner);
         }
         CTxUndo undoDummy;
         if (i > 0) {
@@ -1977,21 +1975,27 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
-   if(pindex->nHeight > HeightOnlyTrustNodeCanMine)
+   if(pindex->nHeight > HeightOnlyTrustNodeCanMine )
    {
    if ( !isInTrustNode(miner,pindex->nHeight,2))
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays to invalid miner  (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID,"bad-cb-amount");
-    int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
+   
+   } 
+   if(pindex->nHeight > HeightOnlyTrustNodeCanMine + 20000)
+   {
+    int64_t timeDiff = (int64_t)block.nTime - pindex->pprev->GetBlockTime();
     bool isEnoughTimePassed = true;
-    if(pindex->nHeight > (HeightOnlyTrustNodeCanMine + 20000) && timeDiff < 7.5*60 )
+    if( timeDiff < 7.5*60 )
          isEnoughTimePassed = false;
+         //LogPrintf("Block Time : Block Height: %d , block time  %d : %d Diff %d\n",pindex->nHeight, block.nTime , pindex->pprev->GetBlockTime() ,timeDiff);
+
     if ( !isEnoughTimePassed)
         return state.DoS(100,
-                         error("ConnectBlock(): not enough time between 2 blocks (time left=%d vs time must=%d)",
-                               timeDiff, 7.5*60),
+                         error("ConnectBlock(): not enough time between 2 blocks Current Block : %d (time left=%d vs time must=%d)",
+                               pindex->nHeight,timeDiff, 7.5*60),
                                REJECT_INVALID,"bad-block time");
    }
     if (!control.Wait())
