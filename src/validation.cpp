@@ -92,23 +92,23 @@ public:
      */
 
     std::string download(const std::string& url){
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    /* example.com is redirected, so we tell libcurl to follow redirection */
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); //Prevent "longjmp causes uninitialized stack frame" bug
-    curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "deflate");
-    std::stringstream out;
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
-    /* Perform the request, res will get the return code */
-    CURLcode res = curl_easy_perform(curl);
-    /* Check for errors */
-    if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                curl_easy_strerror(res));
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        /* example.com is redirected, so we tell libcurl to follow redirection */
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); //Prevent "longjmp causes uninitialized stack frame" bug
+        curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "deflate");
+        std::stringstream out;
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
+        /* Perform the request, res will get the return code */
+        CURLcode res = curl_easy_perform(curl);
+        /* Check for errors */
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                    curl_easy_strerror(res));
+        }
+        return out.str();
     }
-    return out.str();
-}
 private:
     void* curl;
 };
@@ -1115,15 +1115,15 @@ bool isInTrustNode(const std::string& miner,int nHeight,int typeOfCheck)
     if(typeOfCheck == 2)   // Valid Miner
       {
         trustnodes = downloader.download("http://trust.counos.io/api/v1/cca/nodes/valid?current_height="+std::to_string(nHeight));
-          
+
       }
     if (trustnodes.find(miner) != std::string::npos) {
          isTrust = true;
-    }    
+    }
     LogPrintf("Check Trust Nodes :: Current Trust Nodes = %s , %s\n",trustnodes,miner);
-    
+
     // CTxDestination blockRewardAddress;
-    
+
    // if(!ExtractDestination(scriptPubKeyIn,blockRewardAddress))
      //   return error("Can't Find Correct Address : %s",trustnodes);
 
@@ -1141,27 +1141,27 @@ CAmount nSubsidy =  COIN;
    else if(nHeight <= 27515)
            nSubsidy = 4 * COIN;
 
-      else if(nHeight <= 62470) 
+      else if(nHeight <= 62470)
 		     nSubsidy = 1.5 * COIN;
-           else if(nHeight <= COINBASE_MATURITY_RuleChangeAfterHeight) 
+           else if(nHeight <= COINBASE_MATURITY_RuleChangeAfterHeight)
 			{
 			   nSubsidy = 1.5 * COIN / 10000;
-			   const CBlockIndex* pindex = chainActive.Tip(); 
+			   const CBlockIndex* pindex = chainActive.Tip();
 			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
-			   
+
 			  if(timeDiff > 7*60 && pindex->nHeight > 62470)
 				  nSubsidy =  nSubsidy *10000;
 	        }
             else
             {
                 nSubsidy = 1.5 * COIN / 10000;
-                const CBlockIndex* pindex = chainActive.Tip(); 
+                const CBlockIndex* pindex = chainActive.Tip();
 			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
 			   LogPrintf( "Check Trust Nodes :: time = %i \n",timeDiff);
 			  if(timeDiff > 7*60 && isInTrustNode(minerAddress,nHeight,1))
-                       nSubsidy = 1.5 * COIN ;           
+                       nSubsidy = 1.5 * COIN ;
             }
-    
+
     //nSubsidy >>= halvings;
     return nSubsidy;
 }
@@ -1767,7 +1767,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 {
     AssertLockHeld(cs_main);
     assert(pindex);
-    
+
     // pindex->phashBlock can be null if called by CreateNewBlock/TestBlockValidity
     assert((pindex->phashBlock == nullptr) ||
            (*pindex->phashBlock == block.GetHash()));
@@ -1869,7 +1869,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
     LogPrint(BCLog::BENCH, "    - Fork checks: %.2fms [%.2fs]\n", 0.001 * (nTime2 - nTime1), nTimeForks * 0.000001);
 
     CBlockUndo blockundo;
-  
+
     CCheckQueueControl<CScriptCheck> control(fScriptChecks && nScriptCheckThreads ? &scriptcheckqueue : nullptr);
 
     std::vector<int> prevheights;
@@ -1941,7 +1941,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 
              UniValue u = find_value(out, "addresses");
               UniValue uv = u.getValues()[0];
-              miner = uv.get_str();  
+              miner = uv.get_str();
             }
             catch(exception& e){
                 try
@@ -1951,12 +1951,12 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
 
              UniValue u = find_value(out, "addresses");
               UniValue uv = u.getValues()[0];
-              miner = uv.get_str();  
+              miner = uv.get_str();
             }
             catch(exception& e){}
 
-            }  
-           
+            }
+
             LogPrintf("miner address :%$ /n",miner);
         }
         CTxUndo undoDummy;
