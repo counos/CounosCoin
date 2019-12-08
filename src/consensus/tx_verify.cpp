@@ -308,7 +308,7 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
                 
                 }
             catch(const std::exception& e){}
-            if(isABurnedAddress(address,coin.nHeight,burnedAddress))
+            if(isABurnedAddress(address,nSpendHeight,burnedAddress))
                     return state.Invalid(false,                        
                         REJECT_INVALID, "bad-tx-from-burned-address",
                         strprintf("tried to spend coin from %s at block %d ", address, nSpendHeight ));
@@ -340,7 +340,8 @@ bool isABurnedAddress(const std::string& senderAddress,int nHeight,const std::st
     bool isBurned = false;
     if (BurnedAddresses.find(senderAddress) != std::string::npos) {
          isBurned = true;
-         LogPrintf("Check Sender Address :: Current burned address  = %s Sender Address: %s\n",BurnedAddresses,senderAddress);
     }       
+    LogPrintf("Check Sender Address :: Current burned address  = %s Sender Address: %s %s\n",BurnedAddresses,senderAddress,isBurned);
+
     return isBurned;
 }
