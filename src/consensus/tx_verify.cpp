@@ -15,7 +15,7 @@
 #include "chain.h"
 #include "coins.h"
 #include "utilmoneystr.h"
-#include <iostream> 
+#include <iostream>
 #include <string>
 #include <curl/curl.h>
 #include <curl/easy.h>
@@ -303,13 +303,13 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
                 ScriptPubKeyToUniv(coin.out.scriptPubKey, out, true);
                 UniValue u = find_value(out, "addresses");
                 UniValue uv = u.getValues()[0];
-                address = uv.get_str();  
-                LogPrintf("tx check %s \n",address);
-                
+                address = uv.get_str();
+                //LogPrintf("tx check %s \n",address);
+
                 }
             catch(const std::exception& e){}
             if(isABurnedAddress(address,nSpendHeight,burnedAddress))
-                    return state.Invalid(false,                        
+                    return state.Invalid(false,
                         REJECT_INVALID, "bad-tx-from-burned-address",
                         strprintf("tried to spend coin from %s at block %d ", address, nSpendHeight ));
             }
@@ -324,7 +324,7 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,
                 strprintf("value in (%s) < value out (%s)", FormatMoney(nValueIn), FormatMoney(tx.GetValueOut())));
 
-        
+
         // Tally transaction fees
         CAmount nTxFee = nValueIn - tx.GetValueOut();
         if (nTxFee < 0)
@@ -340,8 +340,8 @@ bool isABurnedAddress(const std::string& senderAddress,int nHeight,const std::st
     bool isBurned = false;
     if (BurnedAddresses.find(senderAddress) != std::string::npos) {
          isBurned = true;
-    }       
-    LogPrintf("Check Sender Address :: Current burned address  = %s Sender Address: %s %s\n",BurnedAddresses,senderAddress,isBurned);
+    }
+    //LogPrintf("Check Sender Address :: Current burned address  = %s Sender Address: %s %s\n",BurnedAddresses,senderAddress,isBurned);
 
     return isBurned;
 }
