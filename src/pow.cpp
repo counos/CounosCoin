@@ -28,7 +28,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
             // more than 30 mins and no block, difficulty will be changes to 10000* lower diff
             if (pblock->GetBlockTime() > (pindexLast->GetBlockTime() + params.nPowTargetSpacing*3))
                 {
-                  LogPrintf("Need Higher nBits: %d - %d",nProofOfWorkLimit ,pindexLast->nBits);
+                  LogPrintf("Need Higher nBits: BH %d %d - %d",pindexLast->nHeight ,nProofOfWorkLimit ,pindexLast->nBits);
                   return nProofOfWorkLimit;
                 }
             else
@@ -39,7 +39,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
                 pindex = pindex->pprev;
             if (pblock->GetBlockTime() < (pindex->GetBlockTime() + params.nPowTargetSpacing*5))
             {
-                LogPrintf("Increase Required work becuase of block time creation : %d - %d",pblock->GetBlockTime() ,pindex->GetBlockTime() + params.nPowTargetSpacing*5);
+                LogPrintf("Increase Required work becuase of block time creation Height : %d :%d - %d",pindexLast->nHeight,pblock->GetBlockTime() ,pindex->GetBlockTime() + params.nPowTargetSpacing*5);
                 // Return the last non-special-10000-wmin-difficulty-rules-block multiple 4
                 pindex = pindexLast;
                 while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nProofOfWorkLimit)

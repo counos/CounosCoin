@@ -39,5 +39,58 @@ Other Changes in new Release of CCA :
 
 All mining pools which verified as a Trust node, will be indicated by a Trust node Logo, 
 
+Counos Coin (CCA) version 0.15.3.2
+----------------------------------
+
+From block 144457, only valid miners will be able to mine new blocks. A valid miner is a miner who has a balance of 10,000 coins.
+
+Also, from block 164457, the time window between two created blocks should at least be 7.5 minutes. In other words, if a block is created in less than 7.5 minutes after the creation of the previous block, it will not be valid.
 
 
+How to setup node?
+----------------
+
+Please check doc/build-unix.md for more details, there is all commands need to be run
+
+  	sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libcurl4-openssl-dev
+ 	sudo apt-get install libboost-all-dev
+	
+  	sudo apt-get install software-properties-common
+	
+	sudo add-apt-repository ppa:bitcoin/bitcoin
+	
+	sudo apt-get update
+	
+	sudo apt-get install libdb4.8-dev libdb4.8++-dev
+	
+
+	sudo apt-get install libzmq3-dev
+
+
+
+	./autogen.sh
+	./configure --disable-tests --disable-bench --without-gui
+	make
+
+
+Block Explorer
+--------------
+
+CCA block explorere can be found at http://blockex.csc.counos.org
+
+It's very important to check transaction status on this block explorere. and also by this exploere you can be sure that your are on correct chain.
+
+Official nodes
+----------
+
+Please make sure that you are connected to correct and up-to-date nodes, there is a list of valid and official nodes, if  you find any contradiction between your local chain and what you find on these nodes, please check block explorer to make sure you are on correct chain.
+
+	51.89.161.144
+	51.89.161.145
+	95.216.122.133
+	95.216.122.135
+	95.216.122.136
+	95.216.122.138
+	95.216.122.137
+	95.216.122.142
+	
