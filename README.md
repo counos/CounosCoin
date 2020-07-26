@@ -85,7 +85,8 @@ Official nodes
 
 Please make sure that you are connected to correct and up-to-date nodes, there is a list of valid and official nodes, if  you find any contradiction between your local chain and what you find on these nodes, please check block explorer to make sure you are on correct chain.
 If your core does not connect to node automatically, then please try this command:
-counoscoin-cli addnode 51.89.161.144 add 
+
+       counoscoin-cli addnode 51.89.161.144 add 
 and do this for some of these IP address:
 
 	51.89.161.144
