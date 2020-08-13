@@ -1992,7 +1992,7 @@ static bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockInd
          isEnoughTimePassed = false;
          //LogPrintf("Block Time : Block Height: %d , block time  %d : %d Diff %d\n",pindex->nHeight, block.nTime , pindex->pprev->GetBlockTime() ,timeDiff);
 
-    if ( !isEnoughTimePassed)
+    if ( !isEnoughTimePassed && !fJustCheck)
         return state.DoS(100,
                          error("ConnectBlock(): not enough time between 2 blocks Current Block : %d (time left=%d vs time must=%d)",
                                pindex->nHeight,timeDiff, 7.5*60),
