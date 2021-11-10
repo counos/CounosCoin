@@ -1,78 +1,18 @@
-// Copyright (c) 2017-2017 The Bitcoin Core developers
+// Copyright (c) 2017-2018 The Bitcoin Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "tx_verify.h"
+#include <consensus/tx_verify.h>
 
-#include "consensus.h"
-#include "primitives/transaction.h"
-#include "script/interpreter.h"
-#include "validation.h"
-#include "core_io.h"
-#include <univalue.h>
-#include "../util.h"
+#include <consensus/consensus.h>
+#include <primitives/transaction.h>
+#include <script/interpreter.h>
+#include <consensus/validation.h>
+
 // TODO remove the following dependencies
-#include "chain.h"
-#include "coins.h"
-#include "utilmoneystr.h"
-#include <iostream>
-#include <string>
-#include <curl/curl.h>
-#include <curl/easy.h>
-/**
- * Global state
- */
-using namespace std;
-size_t write_data2(void *ptr, size_t size, size_t nmemb, void *stream) {
-    string data((const char*) ptr, (size_t) size * nmemb);
-    *((stringstream*) stream) << data << endl;
-    return size * nmemb;
-}
- /**
- * A non-threadsafe simple libcURL-easy based HTTP downloader
- * Written by Uli Köhler (techoverflow.net)
- * Published under CC0 1.0 Universal (public domain)
-
- */
-class HTTPDownloader {
-
-public:
-    HTTPDownloader()
-    {
-        curl = curl_easy_init();
-    }
-    ~HTTPDownloader()
-    {
-        curl_easy_cleanup(curl);
-    }
-    /**
-     * Download a file using HTTP GET and store in in a std::string
-     * @param url The URL to download
-     * @return The download result
-     */
-
-    std::string download(const std::string& url){
-    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-    /* example.com is redirected, so we tell libcurl to follow redirection */
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); //Prevent "longjmp causes uninitialized stack frame" bug
-    curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "deflate");
-    std::stringstream out;
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data2);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
-    /* Perform the request, res will get the return code */
-    CURLcode res = curl_easy_perform(curl);
-    /* Check for errors */
-    if (res != CURLE_OK) {
-        fprintf(stderr, "curl_easy_perform() failed: %s\n",
-                curl_easy_strerror(res));
-    }
-    return out.str();
-}
-private:
-    void* curl;
-};
-
+#include <chain.h>
+#include <coins.h>
+#include <util/moneystr.h>
 
 bool IsFinalTx(const CTransaction &tx, int nBlockHeight, int64_t nBlockTime)
 {
@@ -224,7 +164,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     if (tx.vout.empty())
         return state.DoS(10, false, REJECT_INVALID, "bad-txns-vout-empty");
     // Size limits (this doesn't take the witness into account, as that hasn't been checked for malleability)
-    if (::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) * WITNESS_SCALE_FACTOR > MAX_BLOCK_WEIGHT)
+    if (::GetSerializeSize(tx, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) * WITNESS_SCALE_FACTOR > MAX_BLOCK_WEIGHT)
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-oversize");
 
     // Check for negative or overflow output values
@@ -241,14 +181,14 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     }
 
     // Check for duplicate inputs - note that this check is slow so we skip it in CheckBlock
-    //if (fCheckDuplicateInputs) {
+    if (fCheckDuplicateInputs) {
         std::set<COutPoint> vInOutPoints;
         for (const auto& txin : tx.vin)
         {
             if (!vInOutPoints.insert(txin.prevout).second)
                 return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-duplicate");
         }
-    //}
+    }
 
     if (tx.IsCoinBase())
     {
@@ -265,83 +205,46 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state, bool fChe
     return true;
 }
 
-bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight)
+bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoinsViewCache& inputs, int nSpendHeight, CAmount& txfee)
 {
-        // This doesn't trigger the DoS code on purpose; if it did, it would make it easier
-        // for an attacker to attempt to split the network.
-        if (!inputs.HaveInputs(tx))
-            return state.Invalid(false, 0, "", "Inputs unavailable");
+    // are the actual inputs available?
+    if (!inputs.HaveInputs(tx)) {
+        return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputs-missingorspent", false,
+                         strprintf("%s: inputs missing/spent", __func__));
+    }
 
-        CAmount nValueIn = 0;
-        CAmount nFees = 0;
-        HTTPDownloader downloader;
-         std::string burnedAddress ="";
-         if(nSpendHeight > HeightOnlyTrustNodeCanMine )
-            {
-              burnedAddress = downloader.download("http://trust.counos.io/api/v1/cca/addresses/burned?current_height="+std::to_string(nSpendHeight));
-            }
-        for (unsigned int i = 0; i < tx.vin.size(); i++)
-        {
-            const COutPoint &prevout = tx.vin[i].prevout;
-            const Coin& coin = inputs.AccessCoin(prevout);
-            assert(!coin.IsSpent());
+    CAmount nValueIn = 0;
+    for (unsigned int i = 0; i < tx.vin.size(); ++i) {
+        const COutPoint &prevout = tx.vin[i].prevout;
+        const Coin& coin = inputs.AccessCoin(prevout);
+        assert(!coin.IsSpent());
 
-            // If prev is coinbase, check that it's matured
-            if (coin.IsCoinBase()) {
-                const int realMaturity = (coin.nHeight <  COINBASE_MATURITY_RuleChangeAfterHeight)?COINBASE_MATURITY:COINBASE_MATURITY2;
-                if (nSpendHeight - coin.nHeight < realMaturity)
-                    return state.Invalid(false,
-                        REJECT_INVALID, "bad-txns-premature-spend-of-coinbase",
-                        strprintf("tried to spend coinbase at depth %d ", nSpendHeight - coin.nHeight));
-            }
-            //Dont Allow to send coin from Burned Address
-            if(nSpendHeight > HeightOnlyTrustNodeCanMine +19900)
-            {
-            std::string address ="DEF" ;
-            try{
-                UniValue out(UniValue::VOBJ);
-                ScriptPubKeyToUniv(coin.out.scriptPubKey, out, true);
-                UniValue u = find_value(out, "addresses");
-                UniValue uv = u.getValues()[0];
-                address = uv.get_str();
-                //LogPrintf("tx check %s \n",address);
-
-                }
-            catch(const std::exception& e){}
-            if(isABurnedAddress(address,nSpendHeight,burnedAddress))
-                    return state.Invalid(false,
-                        REJECT_INVALID, "bad-tx-from-burned-address",
-                        strprintf("tried to spend coin from %s at block %d ", address, nSpendHeight ));
-            }
-            // Check for negative or overflow input values
-            nValueIn += coin.out.nValue;
-            if (!MoneyRange(coin.out.nValue) || !MoneyRange(nValueIn))
-                return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputvalues-outofrange");
-
+        // If prev is coinbase, check that it's matured
+        if (coin.IsCoinBase() && nSpendHeight - coin.nHeight < COINBASE_MATURITY) {
+            return state.Invalid(false,
+                REJECT_INVALID, "bad-txns-premature-spend-of-coinbase",
+                strprintf("tried to spend coinbase at depth %d", nSpendHeight - coin.nHeight));
         }
 
-        if (nValueIn < tx.GetValueOut())
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,
-                strprintf("value in (%s) < value out (%s)", FormatMoney(nValueIn), FormatMoney(tx.GetValueOut())));
-
-
-        // Tally transaction fees
-        CAmount nTxFee = nValueIn - tx.GetValueOut();
-        if (nTxFee < 0)
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-negative");
-        nFees += nTxFee;
-        if (!MoneyRange(nFees))
-            return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
-    return true;
-}
-
-bool isABurnedAddress(const std::string& senderAddress,int nHeight,const std::string&  BurnedAddresses)
-{
-    bool isBurned = false;
-    if (BurnedAddresses.find(senderAddress) != std::string::npos) {
-         isBurned = true;
+        // Check for negative or overflow input values
+        nValueIn += coin.out.nValue;
+        if (!MoneyRange(coin.out.nValue) || !MoneyRange(nValueIn)) {
+            return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputvalues-outofrange");
+        }
     }
-    //LogPrintf("Check Sender Address :: Current burned address  = %s Sender Address: %s %s\n",BurnedAddresses,senderAddress,isBurned);
 
-    return isBurned;
+    const CAmount value_out = tx.GetValueOut();
+    if (nValueIn < value_out) {
+        return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,
+            strprintf("value in (%s) < value out (%s)", FormatMoney(nValueIn), FormatMoney(value_out)));
+    }
+
+    // Tally transaction fees
+    const CAmount txfee_aux = nValueIn - value_out;
+    if (!MoneyRange(txfee_aux)) {
+        return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
+    }
+
+    txfee = txfee_aux;
+    return true;
 }

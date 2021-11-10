@@ -5,6 +5,7 @@ src/litecoin
 src/litecoind
 src/litecoin-cli
 src/litecoin-tx
+src/litecoin-wallet
 src/test/test_litecoin
 src/test/test_litecoin_fuzzy
 src/qt/test/test_litecoin-qt
@@ -44,9 +45,16 @@ src/qt/forms/ui_*.h
 
 src/qt/test/moc*.cpp
 
+src/qt/bitcoin-qt.config
+src/qt/bitcoin-qt.creator
+src/qt/bitcoin-qt.creator.user
+src/qt/bitcoin-qt.files
+src/qt/bitcoin-qt.includes
+
 .deps
 .dirstamp
 .libs
+.vscode
 .*.swp
 *.*~*
 *.bak
@@ -59,6 +67,7 @@ src/qt/test/moc*.cpp
 *.a
 *.pb.cc
 *.pb.h
+*.dat
 
 *.log
 *.trs
@@ -75,7 +84,8 @@ src/qt/test/moc*.cpp
 *.qm
 Makefile
 litecoin-qt
-Litecoin-Qt.app
+litecoin-Qt.app
+background.tiff*
 
 # Unit-tests
 Makefile.test
@@ -83,7 +93,6 @@ litecoin-qt_test
 
 # Resources cpp
 qrc_*.cpp
-
 # Mac specific
 .DS_Store
 build
@@ -109,4 +118,9 @@ test/cache/*
 
 libbitcoinconsensus.pc
 contrib/devtools/split-debug.sh
-.vscode/settings.json
+
+# Output from running db4 installation
+db4/
+
+# clang-check
+*.plist

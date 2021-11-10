@@ -3,13 +3,7 @@ CounosCoin Core integration/staging tree
 
 [![Build Status](https://travis-ci.org/counoscoin-project/counoscoin.svg?branch=master)](https://travis-ci.org/counoscoin-project/counoscoin)
 
-https://www.counos.io
-
-License
--------
-
-CounosCoin Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
-information or see https://opensource.org/licenses/MIT.
+https://counoscoin.org
 
 What is CounosCoin?
 ----------------
@@ -21,80 +15,66 @@ out collectively by the network. CounosCoin Core is the name of open source
 software which enables the use of this currency.
 
 For more information, as well as an immediately useable, binary version of
-the CounosCoin Core software, see [https://www.counos.io](https://www.counos.io).
+the CounosCoin Core software, see [https://counoscoin.org](https://counoscoin.org).
 
+License
+-------
 
-Counos Coin (CCA) version 0.15.3 
---------------------------------
-From the block 98500, 1.5 reward coins will only be given to trusted nodes.
-Trusted nodes are those nodes that have at least 500,000 CCA.
-Any node that can meet this condition will be added to the list of the trusted nodes through an agreement with Counos Platform and by submitting a wallet address to which mining reward will be sent.
-The block creation time window is still in consideration, such that the 1.5 reward coins are for those blocks that are created 7.5 minutes after the previous block, and if the time window is less than that, the reward would be divided by 10000. And now the added rule is that after the block 98500, if the node is a trusted node and the block is created in the desirable time window, it will get the 1.5 reward coins and the rest of the nodes will receive the reward divided by 10000.
-And, the transaction fees will be given to all node, as it used to be so.
-Other Changes in new Release of CCA :
-- Coin base maturity priod  will be increase to 100,000 Blocks, it means that all reward for new blocks will be spendable after large amount of blocks confirm that. So its not easy to earn and spend CCA trough mining process. Its very important for mining pools and miners which like to send Hashes to CCA network.
-- Also there are some other changes in PoW rules, normally blocks must create every 10 minutes, but based on current difficulty and network hash, the time maybe changed, by new PoW rules, 
-  -- if more than 30 minutes left from last block  creation time, and no new block created, Required work will be decrease to 1000 * PowLimit, 
-  -- and if last 25 blocks created in less than 50 minutes (‌each block in 2 minutes) network will increase Require work 4 * last known work required. 
+CounosCoin Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
+information or see https://opensource.org/licenses/MIT.
 
-All mining pools which verified as a Trust node, will be indicated by a Trust node Logo, 
+Development Process
+-------------------
 
-Counos Coin (CCA) version 0.15.3.2
-----------------------------------
+The `master` branch is regularly built and tested, but is not guaranteed to be
+completely stable. [Tags](https://github.com/counoscoin-project/counoscoin/tags) are created
+regularly to indicate new official, stable release versions of CounosCoin Core.
 
-From block 144457, only valid miners will be able to mine new blocks. A valid miner is a miner who has a balance of 10,000 coins.
+The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md)
+and useful hints for developers can be found in [doc/developer-notes.md](doc/developer-notes.md).
 
-Also, from block 164457, the time window between two created blocks should at least be 7.5 minutes. In other words, if a block is created in less than 7.5 minutes after the creation of the previous block, it will not be valid.
+The developer [mailing list](https://groups.google.com/forum/#!forum/counoscoin-dev)
+should be used to discuss complicated or controversial changes before working
+on a patch set.
 
+Developer IRC can be found on Freenode at #counoscoin-dev.
 
-How to setup node?
-----------------
+Testing
+-------
 
-Please check doc/build-unix.md for more details, there is all commands need to be run
+Testing and code review is the bottleneck for development; we get more pull
+requests than we can review and test on short notice. Please be patient and help out by testing
+other people's pull requests, and remember this is a security-critical project where any mistake might cost people
+lots of money.
 
-  	sudo apt-get install build-essential libtool autotools-dev automake pkg-config libssl-dev libevent-dev bsdmainutils libcurl4-openssl-dev
- 	sudo apt-get install libboost-all-dev
-	
-  	sudo apt-get install software-properties-common
-	
-	sudo add-apt-repository ppa:bitcoin/bitcoin
-	
-	sudo apt-get update
-	
-	sudo apt-get install libdb4.8-dev libdb4.8++-dev
-	
+### Automated Testing
 
-	sudo apt-get install libzmq3-dev
+Developers are strongly encouraged to write [unit tests](src/test/README.md) for new code, and to
+submit new unit tests for old code. Unit tests can be compiled and run
+(assuming they weren't disabled in configure) with: `make check`. Further details on running
+and extending unit tests can be found in [/src/test/README.md](/src/test/README.md).
 
+There are also [regression and integration tests](/test), written
+in Python, that are run automatically on the build server.
+These tests can be run (if the [test dependencies](/test) are installed) with: `test/functional/test_runner.py`
 
+The Travis CI system makes sure that every pull request is built for Windows, Linux, and macOS, and that unit/sanity tests are run automatically.
 
-	./autogen.sh
-	./configure --disable-tests --disable-bench --without-gui
-	make
+### Manual Quality Assurance (QA) Testing
 
+Changes should be tested by somebody other than the developer who wrote the
+code. This is especially important for large or high-risk changes. It is useful
+to add a test plan to the pull request description if testing the changes is
+not straightforward.
 
-Block Explorer
---------------
+Translations
+------------
 
-CCA block explorere can be found at http://blockex.csc.counos.org
+We only accept translation fixes that are submitted through [Bitcoin Core's Transifex page](https://www.transifex.com/projects/p/bitcoin/).
+Translations are converted to CounosCoin periodically.
 
-It's very important to check transaction status on this block explorere. and also by this exploere you can be sure that your are on correct chain.
+Translations are periodically pulled from Transifex and merged into the git repository. See the
+[translation process](doc/translation_process.md) for details on how this works.
 
-Official nodes
-----------
-
-Please make sure that you are connected to correct and up-to-date nodes, there is a list of valid and official nodes, if  you find any contradiction between your local chain and what you find on these nodes, please check block explorer to make sure you are on correct chain.
-If your core does not connect to node automatically, then please try this command:
-
-       counoscoin-cli addnode 51.89.161.144 add 
-and do this for some of these IP address:
-
-	51.89.161.144
-	51.89.161.145
-	95.216.122.133
-	95.216.122.135
-	95.216.122.136
-	95.216.122.138
-	95.216.122.137
-	95.216.122.142
-	
+**Important**: We do not accept translation changes as GitHub pull requests because the next
+pull from Transifex would automatically overwrite them again.
