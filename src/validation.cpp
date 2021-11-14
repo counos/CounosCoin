@@ -1155,12 +1155,36 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
     int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
     // Force block reward to zero when right shift is undefined.
-    if (halvings >= 64)
+    if (halvings >= 10)
         return 0;
+CAmount nSubsidy =  COIN;
+   if(nHeight ==3)
+      nSubsidy = 16812000 * COIN;
+   else if(nHeight <= 27515)
+           nSubsidy = 4 * COIN;
 
-    CAmount nSubsidy = 50 * COIN;
-    // Subsidy is cut in half every 210,000 blocks which will occur approximately every 4 years.
-    nSubsidy >>= halvings;
+      else if(nHeight <= 62470)
+		     nSubsidy = 1.5 * COIN;
+           else if(nHeight <= 98511)//COINBASE_MATURITY_RuleChangeAfterHeight)
+			{
+			   nSubsidy = 1.5 * COIN / 10000;
+			   const CBlockIndex* pindex = chainActive.Tip();
+			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
+
+			  if(timeDiff > 7*60 && pindex->nHeight > 62470)
+				  nSubsidy =  nSubsidy *10000;
+	        }
+            else
+            {
+                nSubsidy = 1.5 * COIN / 10000;
+                const CBlockIndex* pindex = chainActive.Tip();
+			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
+			   //LogPrintf( "Check Trust Nodes :: time = %i \n",timeDiff);
+			//  if(timeDiff > 7*60 && isInTrustNode(minerAddress,nHeight,1))
+             //          nSubsidy = 1.5 * COIN ;
+            }
+
+    //nSubsidy >>= halvings;
     return nSubsidy;
 }
 
