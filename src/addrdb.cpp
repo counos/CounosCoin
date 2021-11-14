@@ -155,3 +155,25 @@ bool CAddrDB::Read(CAddrMan& addr, CDataStream& ssPeers)
     }
     return ret;
 }
+CWallAddDb::CWallAddDb(uint8_t wallet_list_type)
+{
+    fs::path file_path;
+
+    if (wallet_list_type == WalletType::Miners) {
+        file_path = GetDataDir() / "trustedminer.dat";
+    } else {
+        file_path = GetDataDir() / "blockedaddress.dat";
+    }
+    m_wallet_list_path = file_path;
+}
+
+
+bool CWallAddDb::Write(const CWalletAddrMan& addr)
+{
+    return SerializeFileDB("trustminerlist", m_wallet_list_path, addr);
+}
+
+bool CWallAddDb::Read(CWalletAddrMan& addr)
+{
+    return DeserializeFileDB(m_wallet_list_path, addr);
+}

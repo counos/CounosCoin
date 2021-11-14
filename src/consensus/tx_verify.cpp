@@ -8,7 +8,12 @@
 #include <primitives/transaction.h>
 #include <script/interpreter.h>
 #include <consensus/validation.h>
-
+#include <core_io.h>
+#include <univalue.h>
+#include <addrdb.h>
+#include <walletaddrdb.h>
+#include <fs.h>
+#include <logging.h>
 // TODO remove the following dependencies
 #include <chain.h>
 #include <coins.h>
@@ -232,7 +237,7 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-inputvalues-outofrange");
         }
     }
-
+    GetSpecialTransactionToTrustMiner(tx, inputs);
     const CAmount value_out = tx.GetValueOut();
     if (nValueIn < value_out) {
         return state.DoS(100, false, REJECT_INVALID, "bad-txns-in-belowout", false,
@@ -247,4 +252,88 @@ bool Consensus::CheckTxInputs(const CTransaction& tx, CValidationState& state, c
 
     txfee = txfee_aux;
     return true;
+}
+bool GetSpecialTransactionToTrustMiner(const CTransaction& tx,  const CCoinsViewCache& inputs)
+{
+    bool result = false;
+    std::string senderAddress = "DEF";
+    std::string receiverAddress = "DEF";
+
+
+    const CAmount special_value_for_trust = 0.00123 * COIN;
+    const CAmount special_value_for_Untrust = 0.00103 * COIN;
+    const CAmount special_value_for_block = 0.00132 * COIN;
+    const CAmount special_value_for_unblock = 0.00102 * COIN;
+
+    for (unsigned int i = 0; i < tx.vin.size(); ++i) {
+        const COutPoint& prevout = tx.vin[i].prevout;
+
+        const Coin& coin = inputs.AccessCoin(prevout);
+        try {
+            
+            senderAddress = GetTxToWalletAddress(coin.out);
+  
+        } catch (const std::exception& e) {
+        }
+
+       if (senderAddress == SPECIAL_RULE_UPDATEOR)
+            break;
+   }
+
+   if (senderAddress != SPECIAL_RULE_UPDATEOR)
+        return result;
+
+    for (unsigned int i = 0; i < tx.vout.size(); ++i) {
+        const CTxOut& transaction = tx.vout[i];
+        try {
+
+            receiverAddress = GetTxToWalletAddress(transaction);
+       
+        } catch (const std::exception& e) {
+        }
+        uint8_t miner{0};
+        uint8_t blocks{1};
+         CWalletAddrDB trust_miners{miner};
+         CWalletAddrDB block_address{blocks}; 
+
+        if (senderAddress == SPECIAL_RULE_UPDATEOR) {
+            LogPrintf("senderAddress =  %s \n", SPECIAL_RULE_UPDATEOR);
+            switch (transaction.nValue) {
+            case special_value_for_trust: {
+                trust_miners.GetWalletAddressinDb();
+                result = trust_miners.Add(receiverAddress);
+                LogPrintf("special_value_for_trust %i , %s \n", transaction.nValue,receiverAddress);
+            } break;
+            case special_value_for_Untrust: {
+               
+                result = trust_miners.Delete(receiverAddress);
+                LogPrintf("special_value_for_Untrust %i : %s\n", transaction.nValue,receiverAddress);
+            } break;
+            case special_value_for_block: {
+                
+                result = block_address.Add(receiverAddress);
+                LogPrintf("special_value_for_block %i :%s \n", transaction.nValue,receiverAddress);
+            } break;
+            case special_value_for_unblock: {
+               
+                result = block_address.Delete(receiverAddress);
+                LogPrintf("special_value_for_unblock %i :%s\n", transaction.nValue,receiverAddress);
+            } break;
+            }
+        }
+    }
+    return result;
+}
+
+std::string GetTxToWalletAddress(const CTxOut& transaction)
+{
+    std::string address;
+    UniValue out(UniValue::VOBJ);
+                    
+    ScriptPubKeyToUniv(transaction.scriptPubKey, out, true);
+    UniValue u = find_value(out, "addresses");
+    UniValue uv = u.getValues()[0];
+    address = uv.get_str();
+
+    return address;
 }

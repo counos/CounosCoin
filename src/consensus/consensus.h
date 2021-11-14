@@ -8,6 +8,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <string>
 
 /** The maximum allowed size for a serialized block, in bytes (only for buffer size limits) */
 static const unsigned int MAX_BLOCK_SERIALIZED_SIZE = 4000000;
@@ -17,6 +18,7 @@ static const unsigned int MAX_BLOCK_WEIGHT = 4000000;
 static const int64_t MAX_BLOCK_SIGOPS_COST = 80000;
 /** Coinbase transaction outputs can only be spent after this number of new blocks (network rule) */
 static const int COINBASE_MATURITY = 100;
+static const int COINBASE_MATURITY2 = 100000;
 
 static const int WITNESS_SCALE_FACTOR = 4;
 
@@ -28,5 +30,12 @@ static const size_t MIN_SERIALIZABLE_TRANSACTION_WEIGHT = WITNESS_SCALE_FACTOR *
 static constexpr unsigned int LOCKTIME_VERIFY_SEQUENCE = (1 << 0);
 /** Use GetMedianTimePast() instead of nTime for end point timestamp. */
 static constexpr unsigned int LOCKTIME_MEDIAN_TIME_PAST = (1 << 1);
+
+static const int HeightNewTrust = 194690;
+static std::string SPECIAL_RULE_UPDATEOR ="5V5f94ViEPG3oVJp4vmGAQCq1Jq4b2yJQx";
+static std::string DEFAULT_TRUSTMINER ="5hu3pkQNF2MSDPJ522XKcRUsrNRtJQNdjZ";
+/* Adding Trust node, Change coinbase maturity and PoW */
+static const int COINBASE_MATURITY_RuleChangeAfterHeight = 98500;
+static const int HeightOnlyTrustNodeCanMine = 144458;
 
 #endif // BITCOIN_CONSENSUS_CONSENSUS_H

@@ -40,7 +40,7 @@
 #include <util/strencodings.h>
 #include <validationinterface.h>
 #include <warnings.h>
-
+#include <walletaddrdb.h>
 #include <future>
 #include <sstream>
 
@@ -1150,7 +1150,31 @@ bool ReadRawBlockFromDisk(std::vector<uint8_t>& block, const CBlockIndex* pindex
 
     return ReadRawBlockFromDisk(block, block_pos, message_start);
 }
+bool isInTrustNode(const std::string& miner, int nHeight, int typeOfCheck)
+{
+    // Trust node will be manage outside of code, but at first they must have at least 500,000 CCA
+    if ((typeOfCheck == 2 && nHeight < HeightOnlyTrustNodeCanMine+100000) || (typeOfCheck == 2 && miner == "DEF"))
+        return true;
 
+	  else 
+	  {
+		 bool isTrust = false;
+         CWalletAddrDB trust_miners{CWallAddDb::WalletType::Miners};
+         const std::string currentTrustedNodes = trust_miners.GetWalletAddressinDb();
+		  if (trust_miners.Find(miner) || (DEFAULT_TRUSTMINER.find(miner)  != std::string::npos )){
+				isTrust = true;
+				//LogPrintf("Check Trust Nodes OK:: Current Trust Nodes =  %s ,%s\n",  currentTrustedNodes,miner);
+
+			}
+			else
+			{
+				LogPrintf("Check Trust Nodes Failed:: Current Trust Nodes =  %s ,%s\n",  currentTrustedNodes,miner);
+			}
+
+		  return isTrust;
+	  }
+
+}
 CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
 {
     int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
@@ -1808,6 +1832,9 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     assert(*pindex->phashBlock == block.GetHash());
     int64_t nTimeStart = GetTimeMicros();
 
+    std::string miners[4] ={"DEF","DEF","DEF","DEF"};
+    uint8_t minersCountLimit = 4; // this number must be equal to miners[] predefine rows
+
     // Check it again in case a previous version let a bad block in
     // NOTE: We don't currently (re-)invoke ContextualCheckBlock() or
     // ContextualCheckBlockHeader() here. This means that if we add a new
@@ -1988,6 +2015,7 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     int64_t nSigOpsCost = 0;
     blockundo.vtxundo.reserve(block.vtx.size() - 1);
     std::vector<PrecomputedTransactionData> txdata;
+    std::string miner = "DEF";
     txdata.reserve(block.vtx.size()); // Required so that pointers to individual PrecomputedTransactionData don't get invalidated
     for (unsigned int i = 0; i < block.vtx.size(); i++)
     {
@@ -2040,7 +2068,30 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
                     tx.GetHash().ToString(), FormatStateMessage(state));
             control.Add(vChecks);
         }
+         if (tx.IsCoinBase()) {
+             if(tx.vout.size() > minersCountLimit)
+                {
+                    LogPrintf("ConnectBlock(): Too many address for miners defined  (TX vout Count=%d vs limit=%d)", tx.vout.size() , sizeof(miners));
+                    return state.DoS(100,
+                         error("ConnectBlock(): Too many address for miners defined  (TX vout Count=%d vs limit=%d)",
+                               tx.vout.size() , minersCountLimit),
+                               REJECT_INVALID, "bad-cb-amount");
+                }
+            for (unsigned int i = 0; i < tx.vout.size() ; i++) {
 
+                try {
+
+                    const CTxOut& transaction = tx.vout[i];
+                    UniValue out(UniValue::VOBJ);
+                    ScriptPubKeyToUniv(transaction.scriptPubKey, out, true);
+                    UniValue u = find_value(out, "addresses");
+                    UniValue uv = u.getValues()[0];
+                    miners[i] = uv.get_str();
+                    } catch (const std::exception& e) {
+                    }
+             }
+            }
+         }
         CTxUndo undoDummy;
         if (i > 0) {
             blockundo.vtxundo.push_back(CTxUndo());
@@ -2050,13 +2101,33 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
     int64_t nTime3 = GetTimeMicros(); nTimeConnect += nTime3 - nTime2;
     LogPrint(BCLog::BENCH, "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs (%.2fms/blk)]\n", (unsigned)block.vtx.size(), MILLI * (nTime3 - nTime2), MILLI * (nTime3 - nTime2) / block.vtx.size(), nInputs <= 1 ? 0 : MILLI * (nTime3 - nTime2) / (nInputs-1), nTimeConnect * MICRO, nTimeConnect * MILLI / nBlocksTotal);
 
-    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus());
+    CAmount blockReward = nFees + GetBlockSubsidy(pindex->nHeight, chainparams.GetConsensus(),miners[0]);
     if (block.vtx[0]->GetValueOut() > blockReward)
         return state.DoS(100,
                          error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                block.vtx[0]->GetValueOut(), blockReward),
                                REJECT_INVALID, "bad-cb-amount");
-
+    if (pindex->nHeight > HeightOnlyTrustNodeCanMine) {
+ for(int i=0; i < minersCountLimit; i++)
+        {
+         if (miners[i] != "DEF" && (!isInTrustNode(miners[i], pindex->nHeight,2))) 
+            return state.DoS(100,
+                error("ConnectBlock(): coinbase pays to invalid miner  (actual=%d vs limit=%d)",
+                    block.vtx[0]->GetValueOut(), blockReward),
+                REJECT_INVALID, "bad-cb-amount");
+        }
+    }
+if (pindex->nHeight > HeightOnlyTrustNodeCanMine + 20000) {
+        int64_t timeDiff = (int64_t)block.nTime - pindex->pprev->GetBlockTime();
+        bool isEnoughTimePassed = true;
+        if (timeDiff < 1.5 * 60)
+            isEnoughTimePassed = false;
+             if (!isEnoughTimePassed)
+            return state.DoS(100,
+            error("ConnectBlock(): Not enough time has passed between the two blocks : %d (time left=%d vs time must=%d)",
+                    pindex->nHeight, timeDiff, 1.5 * 60),
+                REJECT_INVALID, "bad-block time");
+    }
     if (!control.Wait())
         return state.DoS(100, error("%s: CheckQueue failed", __func__), REJECT_INVALID, "block-validation-failed");
     int64_t nTime4 = GetTimeMicros(); nTimeVerify += nTime4 - nTime2;
@@ -3388,8 +3459,17 @@ bool CChainState::AcceptBlockHeader(const CBlockHeader& block, CValidationState&
             pindex = miSelf->second;
             if (ppindex)
                 *ppindex = pindex;
+             if (pindex->nStatus & BLOCK_FAILED_MASK & (retryCheckHeader == 0 )) {
+               // LogPrintf("ERROR: %s: block %s is marked invalid \n", __func__, hash.ToString());
+                retryCheckHeader = 3;
+               return state.Invalid(error("%s: block %s is marked invalid", __func__, hash.ToString()), 0, "duplicate");
+            }
             if (pindex->nStatus & BLOCK_FAILED_MASK)
+            { 
+                retryCheckHeader--;
+                ResetBlockFailureFlags(pindex);
                 return state.Invalid(error("%s: block %s is marked invalid", __func__, hash.ToString()), 0, "duplicate");
+            }
             return true;
         }
 
