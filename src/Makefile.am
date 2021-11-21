@@ -102,8 +102,9 @@ endif
 BITCOIN_CORE_H = \
   addrdb.h \
   addrman.h \
-   walletaddrdb.h \
-  walletaddrman.h \
+  counos/control_functions.h \
+  counos/walletaddrdb.h \
+  counos/walletaddrman.h \
   attributes.h \
   banman.h \
   base58.h \
@@ -242,8 +243,9 @@ libbitcoin_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libbitcoin_server_a_SOURCES = \
   addrdb.cpp \
   addrman.cpp \
-  walletaddrdb.cpp \
-  walletaddrman.cpp \
+  counos/control_functions.cpp \
+  counos/walletaddrdb.cpp \
+  counos/walletaddrman.cpp \
   banman.cpp \
   bloom.cpp \
   blockencodings.cpp \

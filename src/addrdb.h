@@ -8,7 +8,7 @@
 
 #include <fs.h>
 #include <serialize.h>
-#include <walletaddrman.h>
+#include <counos/walletaddrman.h>
 #include <string>
 #include <map>
 

@@ -78,6 +78,6 @@ bool EvaluateSequenceLocks(const CBlockIndex& block, std::pair<int, int64_t> loc
  * Consensus critical. Takes as input a list of heights at which tx's inputs (in order) confirmed.
  */
 bool SequenceLocks(const CTransaction &tx, int flags, std::vector<int>* prevHeights, const CBlockIndex& block);
-bool GetSpecialTransactionToTrustMiner(const CTransaction& tx, const CCoinsViewCache& inputs);
-std::string GetTxToWalletAddress(const CTxOut& transaction);
+//bool GetSpecialTransactionToTrustMiner(const CTransaction& tx, const CCoinsViewCache& inputs);
+//std::string GetTxToWalletAddress(const CTxOut& transaction);
 #endif // BITCOIN_CONSENSUS_TX_VERIFY_H

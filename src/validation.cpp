@@ -14,6 +14,7 @@
 #include <consensus/merkle.h>
 #include <consensus/tx_verify.h>
 #include <consensus/validation.h>
+#include <addrdb.h>
 #include <cuckoocache.h>
 #include <hash.h>
 #include <index/txindex.h>
@@ -40,10 +41,10 @@
 #include <util/strencodings.h>
 #include <validationinterface.h>
 #include <warnings.h>
-#include <walletaddrdb.h>
+#include <counos/walletaddrdb.h> 
+#include <counos/control_functions.h>
 #include <future>
 #include <sstream>
-
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
 
@@ -53,6 +54,8 @@
 
 #define MICRO 0.000001
 #define MILLI 0.001
+/*Reconsider block automaticly when header mark invalid*/
+uint8_t retryCheckHeader = 100;
 
 /**
  * Global state
@@ -1159,7 +1162,7 @@ bool isInTrustNode(const std::string& miner, int nHeight, int typeOfCheck)
 	  else 
 	  {
 		 bool isTrust = false;
-         CWalletAddrDB trust_miners{CWallAddDb::WalletType::Miners};
+/*          CWalletAddrDB trust_miners{CWallAddDb::WalletType::Miners};
          const std::string currentTrustedNodes = trust_miners.GetWalletAddressinDb();
 		  if (trust_miners.Find(miner) || (DEFAULT_TRUSTMINER.find(miner)  != std::string::npos )){
 				isTrust = true;
@@ -1169,13 +1172,13 @@ bool isInTrustNode(const std::string& miner, int nHeight, int typeOfCheck)
 			else
 			{
 				LogPrintf("Check Trust Nodes Failed:: Current Trust Nodes =  %s ,%s\n",  currentTrustedNodes,miner);
-			}
+			} */
 
 		  return isTrust;
 	  }
 
 }
-CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams)
+CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams,const std::string& minerAddress)
 {
     int halvings = nHeight / consensusParams.nSubsidyHalvingInterval;
     // Force block reward to zero when right shift is undefined.
@@ -1204,8 +1207,8 @@ CAmount nSubsidy =  COIN;
                 const CBlockIndex* pindex = chainActive.Tip();
 			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
 			   //LogPrintf( "Check Trust Nodes :: time = %i \n",timeDiff);
-			//  if(timeDiff > 7*60 && isInTrustNode(minerAddress,nHeight,1))
-             //          nSubsidy = 1.5 * COIN ;
+			  if(timeDiff > 7*60 && isInTrustNode(minerAddress,nHeight,1))
+                       nSubsidy = 1.5 * COIN ;
             }
 
     //nSubsidy >>= halvings;
@@ -2080,18 +2083,14 @@ bool CChainState::ConnectBlock(const CBlock& block, CValidationState& state, CBl
             for (unsigned int i = 0; i < tx.vout.size() ; i++) {
 
                 try {
-
-                    const CTxOut& transaction = tx.vout[i];
-                    UniValue out(UniValue::VOBJ);
-                    ScriptPubKeyToUniv(transaction.scriptPubKey, out, true);
-                    UniValue u = find_value(out, "addresses");
-                    UniValue uv = u.getValues()[0];
-                    miners[i] = uv.get_str();
-                    } catch (const std::exception& e) {
-                    }
+                    
+                    const CTxOut& transaction = tx.vout[i];             
+                    miners[i] = GetTxToWalletAddress(transaction);
+                    } 
+                    catch (const std::exception& e) { }
              }
             }
-         }
+         
         CTxUndo undoDummy;
         if (i > 0) {
             blockundo.vtxundo.push_back(CTxUndo());

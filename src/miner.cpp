@@ -5,13 +5,14 @@
 
 #include <miner.h>
 
+#include <core_io.h>
 #include <amount.h>
 #include <chain.h>
 #include <chainparams.h>
 #include <coins.h>
 #include <consensus/consensus.h>
-#include <consensus/merkle.h>
 #include <consensus/tx_verify.h>
+#include <consensus/merkle.h>
 #include <consensus/validation.h>
 #include <hash.h>
 #include <net.h>
@@ -23,8 +24,9 @@
 #include <timedata.h>
 #include <util/moneystr.h>
 #include <util/system.h>
+#include <validation.h>
 #include <validationinterface.h>
-
+#include <univalue.h>
 #include <algorithm>
 #include <queue>
 #include <utility>
@@ -43,6 +45,7 @@ int64_t UpdateTime(CBlockHeader* pblock, const Consensus::Params& consensusParam
 
     return nNewTime - nOldTime;
 }
+
 
 BlockAssembler::Options::Options() {
     blockMinFeeRate = CFeeRate(DEFAULT_BLOCK_MIN_TX_FEE);
@@ -144,14 +147,25 @@ std::unique_ptr<CBlockTemplate> BlockAssembler::CreateNewBlock(const CScript& sc
 
     m_last_block_num_txs = nBlockTx;
     m_last_block_weight = nBlockWeight;
+    std::string miner = "DEF";
 
+    try {
+        UniValue out(UniValue::VOBJ);
+        ScriptPubKeyToUniv(scriptPubKeyIn, out, true);
+
+        UniValue u = find_value(out, "addresses");
+        UniValue uv = u.getValues()[0];
+        miner = uv.get_str();
+        LogPrintf("Assembler %s \n", miner);
+    } catch (const std::exception& e) {
+    }
     // Create coinbase transaction.
     CMutableTransaction coinbaseTx;
     coinbaseTx.vin.resize(1);
     coinbaseTx.vin[0].prevout.SetNull();
     coinbaseTx.vout.resize(1);
     coinbaseTx.vout[0].scriptPubKey = scriptPubKeyIn;
-    coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus());
+    coinbaseTx.vout[0].nValue = nFees + GetBlockSubsidy(nHeight, chainparams.GetConsensus(),miner);
     coinbaseTx.vin[0].scriptSig = CScript() << nHeight << OP_0;
     pblock->vtx[0] = MakeTransactionRef(std::move(coinbaseTx));
     pblocktemplate->vchCoinbaseCommitment = GenerateCoinbaseCommitment(*pblock, pindexPrev, chainparams.GetConsensus());
