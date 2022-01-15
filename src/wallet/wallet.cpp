@@ -4272,41 +4272,41 @@ std::shared_ptr<CWallet> CWallet::CreateWalletFromFile(interfaces::Chain& chain,
 
     walletInstance->m_allow_fallback_fee = Params().IsFallbackFeeEnabled();
     if (gArgs.IsArgSet("-fallbackfee")) {
-        CAmount nFeePerK = 0;
-        if (!ParseMoney(gArgs.GetArg("-fallbackfee", ""), nFeePerK)) {
+        CAmount nFeePer10K = 0;
+        if (!ParseMoney(gArgs.GetArg("-fallbackfee", ""), nFeePer10K)) {
             InitError(strprintf(_("Invalid amount for -fallbackfee=<amount>: '%s'"), gArgs.GetArg("-fallbackfee", "")));
             return nullptr;
         }
-        if (nFeePerK > HIGH_TX_FEE_PER_KB) {
+        if (nFeePer10K > HIGH_TX_FEE_PER_KB) {
             InitWarning(AmountHighWarn("-fallbackfee") + " " +
                         _("This is the transaction fee you may pay when fee estimates are not available."));
         }
-        walletInstance->m_fallback_fee = CFeeRate(nFeePerK);
-        walletInstance->m_allow_fallback_fee = nFeePerK != 0; //disable fallback fee in case value was set to 0, enable if non-null value
+        walletInstance->m_fallback_fee = CFeeRate(nFeePer10K);
+        walletInstance->m_allow_fallback_fee = nFeePer10K != 0; //disable fallback fee in case value was set to 0, enable if non-null value
     }
     if (gArgs.IsArgSet("-discardfee")) {
-        CAmount nFeePerK = 0;
-        if (!ParseMoney(gArgs.GetArg("-discardfee", ""), nFeePerK)) {
+        CAmount nFeePer10K = 0;
+        if (!ParseMoney(gArgs.GetArg("-discardfee", ""), nFeePer10K)) {
             InitError(strprintf(_("Invalid amount for -discardfee=<amount>: '%s'"), gArgs.GetArg("-discardfee", "")));
             return nullptr;
         }
-        if (nFeePerK > HIGH_TX_FEE_PER_KB) {
+        if (nFeePer10K > HIGH_TX_FEE_PER_KB) {
             InitWarning(AmountHighWarn("-discardfee") + " " +
                         _("This is the transaction fee you may discard if change is smaller than dust at this level"));
         }
-        walletInstance->m_discard_rate = CFeeRate(nFeePerK);
+        walletInstance->m_discard_rate = CFeeRate(nFeePer10K);
     }
     if (gArgs.IsArgSet("-paytxfee")) {
-        CAmount nFeePerK = 0;
-        if (!ParseMoney(gArgs.GetArg("-paytxfee", ""), nFeePerK)) {
+        CAmount nFeePer10K = 0;
+        if (!ParseMoney(gArgs.GetArg("-paytxfee", ""), nFeePer10K)) {
             InitError(AmountErrMsg("paytxfee", gArgs.GetArg("-paytxfee", "")));
             return nullptr;
         }
-        if (nFeePerK > HIGH_TX_FEE_PER_KB) {
+        if (nFeePer10K > HIGH_TX_FEE_PER_KB) {
             InitWarning(AmountHighWarn("-paytxfee") + " " +
                         _("This is the transaction fee you will pay if you send a transaction."));
         }
-        walletInstance->m_pay_tx_fee = CFeeRate(nFeePerK, 1000);
+        walletInstance->m_pay_tx_fee = CFeeRate(nFeePer10K, 1000);
         if (walletInstance->m_pay_tx_fee < ::minRelayTxFee) {
             InitError(strprintf(_("Invalid amount for -paytxfee=<amount>: '%s' (must be at least %s)"),
                 gArgs.GetArg("-paytxfee", ""), ::minRelayTxFee.ToString()));

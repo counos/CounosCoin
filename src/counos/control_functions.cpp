@@ -13,10 +13,10 @@ bool GetSpecialTransactionToTrustMiner(const CTransaction& tx,  const CCoinsView
     std::string receiverAddress = "DEF";
 
 
-    const CAmount special_value_for_trust = 0.00123 * COIN;
-    const CAmount special_value_for_Untrust = 0.00103 * COIN;
-    const CAmount special_value_for_block = 0.00132 * COIN;
-    const CAmount special_value_for_unblock = 0.00102 * COIN;
+    const CAmount special_value_for_trust = 0.00123 * NORMALCOIN;
+    const CAmount special_value_for_Untrust = 0.00103 * NORMALCOIN;
+    const CAmount special_value_for_block = 0.00132 * NORMALCOIN;
+    const CAmount special_value_for_unblock = 0.00102 * NORMALCOIN;
 
     for (unsigned int i = 0; i < tx.vin.size(); ++i) {
         const COutPoint& prevout = tx.vin[i].prevout;

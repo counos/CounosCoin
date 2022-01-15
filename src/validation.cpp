@@ -1162,7 +1162,7 @@ bool isInTrustNode(const std::string& miner, int nHeight, int typeOfCheck)
 	  else 
 	  {
 		 bool isTrust = false;
-/*          CWalletAddrDB trust_miners{CWallAddDb::WalletType::Miners};
+          CWalletAddrDB trust_miners{CWallAddDb::WalletType::Miners};
          const std::string currentTrustedNodes = trust_miners.GetWalletAddressinDb();
 		  if (trust_miners.Find(miner) || (DEFAULT_TRUSTMINER.find(miner)  != std::string::npos )){
 				isTrust = true;
@@ -1172,7 +1172,7 @@ bool isInTrustNode(const std::string& miner, int nHeight, int typeOfCheck)
 			else
 			{
 				LogPrintf("Check Trust Nodes Failed:: Current Trust Nodes =  %s ,%s\n",  currentTrustedNodes,miner);
-			} */
+			} 
 
 		  return isTrust;
 	  }
@@ -1184,17 +1184,17 @@ CAmount GetBlockSubsidy(int nHeight, const Consensus::Params& consensusParams,co
     // Force block reward to zero when right shift is undefined.
     if (halvings >= 10)
         return 0;
-CAmount nSubsidy =  COIN;
+CAmount nSubsidy =  NORMALCOIN;
    if(nHeight ==3)
-      nSubsidy = 16812000 * COIN;
+      nSubsidy = 16812000 * NORMALCOIN;
    else if(nHeight <= 27515)
-           nSubsidy = 4 * COIN;
+           nSubsidy = 4 * NORMALCOIN;
 
       else if(nHeight <= 62470)
-		     nSubsidy = 1.5 * COIN;
-           else if(nHeight <= 98511)//COINBASE_MATURITY_RuleChangeAfterHeight)
+		     nSubsidy = 1.5 * NORMALCOIN;
+           else if(nHeight <= COINBASE_MATURITY_RuleChangeAfterHeight)
 			{
-			   nSubsidy = 1.5 * COIN / 10000;
+			   nSubsidy = 1.5 * NORMALCOIN / 10000;
 			   const CBlockIndex* pindex = chainActive.Tip();
 			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
 
@@ -1203,12 +1203,12 @@ CAmount nSubsidy =  COIN;
 	        }
             else
             {
-                nSubsidy = 1.5 * COIN / 10000;
+                nSubsidy = 1.5 * NORMALCOIN / 10000;
                 const CBlockIndex* pindex = chainActive.Tip();
 			   int64_t timeDiff = pindex->GetBlockTime() - pindex->pprev->GetBlockTime();
 			   //LogPrintf( "Check Trust Nodes :: time = %i \n",timeDiff);
 			  if(timeDiff > 7*60 && isInTrustNode(minerAddress,nHeight,1))
-                       nSubsidy = 1.5 * COIN ;
+                       nSubsidy = 1.5 * NORMALCOIN ;
             }
 
     //nSubsidy >>= halvings;

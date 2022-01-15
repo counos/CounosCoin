@@ -9,14 +9,50 @@
 #include <chain.h>
 #include <primitives/block.h>
 #include <uint256.h>
+#include <consensus/consensus.h>
+#include <logging.h>
 
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     assert(pindexLast != nullptr);
     unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
-
+    if(pindexLast->nHeight > HeightOnlyTrustNodeCanMine+3000)
+        nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact() / 1.094;
+    if(pindexLast->nHeight > HeightNewTrust)
+        nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact() / 1.0094;
     // Only change once per difficulty adjustment interval
-    if ((pindexLast->nHeight+1) % params.DifficultyAdjustmentInterval() != 0)
+    LogPrintf("Def status: BH %d %d - %d %d",pindexLast->nHeight ,nProofOfWorkLimit ,UintToArith256(params.powLimit).GetCompact(),params.DifficultyAdjustmentInterval());
+if((pindexLast->nHeight > COINBASE_MATURITY_RuleChangeAfterHeight + 10 && /* blocks after 98511 */ 
+          (pindexLast->nHeight+1) %  params.DifficultyAdjustmentInterval() != 0))
+          {
+          
+            // more than 30 mins and no block, difficulty will be changes to 10000* lower diff
+            if (pblock->GetBlockTime() > (pindexLast->GetBlockTime() + params.nPowTargetSpacing*3))
+                {
+                  LogPrintf("Need Higher nBits: BH %d %d - %d",pindexLast->nHeight ,nProofOfWorkLimit ,pindexLast->nBits);
+                  return nProofOfWorkLimit;
+                }
+            else
+            {
+             // blocks generate every 2 mins in last 25 blocks
+            const CBlockIndex* pindex = pindexLast;
+            for (int i = 0; i <= params.DifficultyAdjustmentInterval()/84 ; i++)
+                pindex = pindex->pprev;
+            if (pblock->GetBlockTime() < (pindex->GetBlockTime() + params.nPowTargetSpacing*5))
+            {
+                LogPrintf("Increase Required work becuase of block time creation Height : %d :%d - %d",pindexLast->nHeight,pblock->GetBlockTime() ,pindex->GetBlockTime() + params.nPowTargetSpacing*5);
+                // Return the last non-special-10000-wmin-difficulty-rules-block multiple 4
+                pindex = pindexLast;
+                while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nProofOfWorkLimit)
+                    pindex = pindex->pprev;
+                return pindex->nBits;
+            }
+            }
+        return pindexLast->nBits;
+         }
+        
+    // Only change once per difficulty adjustment interval
+    if (((pindexLast->nHeight+1) % params.DifficultyAdjustmentInterval() != 0))
     {
         if (params.fPowAllowMinDifficultyBlocks)
         {

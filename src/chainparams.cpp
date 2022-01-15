@@ -110,7 +110,7 @@ public:
         m_assumed_blockchain_size = 22;
         m_assumed_chain_state_size = 3;
 
-        genesis = CreateGenesisBlock(1519849576,730820,0x1e0ffff0, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1519849576,730820,0x1e0ffff0, 1, 50 * NORMALCOIN);
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x9a256f4db37581623313802183318e6029bf0718cdc416cfc77087d6ee0ad72c"));
         assert(genesis.hashMerkleRoot == uint256S("0x740a4aa9f9cb098522a60244208dad0ef3b60e0d1c7320ff610efb3be1689fb0"));
@@ -205,7 +205,7 @@ public:
         m_assumed_blockchain_size = 2;
         m_assumed_chain_state_size = 1;
 
-        genesis = CreateGenesisBlock(1486949366, 3968048, 0x1e0ffff0, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1486949366, 3968048, 0x1e0ffff0, 1, 50 * NORMALCOIN);
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x799cbbf2d3ab1cef4ba020b490c2756d402d814f7d79cca948e4d9889499c389"));
         assert(genesis.hashMerkleRoot == uint256S("0x740a4aa9f9cb098522a60244208dad0ef3b60e0d1c7320ff610efb3be1689fb0"));
@@ -213,9 +213,7 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
         // nodes with support for servicebits filtering should be at the top
-        vSeeds.emplace_back("testnet-seed.counoscointools.com");
-        vSeeds.emplace_back("seed-b.counoscoin.loshan.co.uk");
-        vSeeds.emplace_back("dnsseed-testnet.thrasher.io");
+
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,111);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1,196);
@@ -297,7 +295,7 @@ public:
 
         UpdateVersionBitsParametersFromArgs(args);
 
-        genesis = CreateGenesisBlock(1296688602, 3, 0x207fffff, 1, 50 * COIN);
+        genesis = CreateGenesisBlock(1296688602, 3, 0x207fffff, 1, 50 * NORMALCOIN);
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x97b49383bcefa740ddadb876b89cf56bc3280b8aa4f0c62e8f1eaeff205a3366"));
         assert(genesis.hashMerkleRoot == uint256S("0x740a4aa9f9cb098522a60244208dad0ef3b60e0d1c7320ff610efb3be1689fb0"));

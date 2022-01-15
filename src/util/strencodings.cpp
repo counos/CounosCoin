@@ -520,23 +520,25 @@ bool ParseFixedPoint(const std::string &val, int decimals, int64_t *amount_out)
     if (exponent_sign)
         exponent = -exponent;
     exponent = exponent - point_ofs + mantissa_tzeros;
-
+    
     /* finalize mantissa */
     if (mantissa_sign)
         mantissa = -mantissa;
-
+  
     /* convert to one 64-bit fixed-point value */
     exponent += decimals;
+   
     if (exponent < 0)
         return false; /* cannot represent values smaller than 10^-decimals */
     if (exponent >= 18)
         return false; /* cannot represent values larger than or equal to 10^(18-decimals) */
-
+    
     for (int i=0; i < exponent; ++i) {
         if (mantissa > (UPPER_BOUND / 10LL) || mantissa < -(UPPER_BOUND / 10LL))
             return false; /* overflow */
         mantissa *= 10;
     }
+  
     if (mantissa > UPPER_BOUND || mantissa < -UPPER_BOUND)
         return false; /* overflow */
 

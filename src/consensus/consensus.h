@@ -31,7 +31,7 @@ static constexpr unsigned int LOCKTIME_VERIFY_SEQUENCE = (1 << 0);
 /** Use GetMedianTimePast() instead of nTime for end point timestamp. */
 static constexpr unsigned int LOCKTIME_MEDIAN_TIME_PAST = (1 << 1);
 
-static const int HeightNewTrust = 194690;
+static const int HeightNewTrust = 195388;
 static std::string SPECIAL_RULE_UPDATEOR ="5V5f94ViEPG3oVJp4vmGAQCq1Jq4b2yJQx";
 static std::string DEFAULT_TRUSTMINER ="5hu3pkQNF2MSDPJ522XKcRUsrNRtJQNdjZ";
 /* Adding Trust node, Change coinbase maturity and PoW */
