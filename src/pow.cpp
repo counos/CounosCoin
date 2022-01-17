@@ -21,7 +21,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     if(pindexLast->nHeight > HeightNewTrust)
         nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact() / 1.0094;
     // Only change once per difficulty adjustment interval
-    LogPrintf("Def status: BH %d %d - %d %d",pindexLast->nHeight ,nProofOfWorkLimit ,UintToArith256(params.powLimit).GetCompact(),params.DifficultyAdjustmentInterval());
+    LogPrintf("Def status: BH %d %d - %d %d \n",pindexLast->nHeight ,nProofOfWorkLimit ,UintToArith256(params.powLimit).GetCompact(),params.DifficultyAdjustmentInterval());
 if((pindexLast->nHeight > COINBASE_MATURITY_RuleChangeAfterHeight + 10 && /* blocks after 98511 */ 
           (pindexLast->nHeight+1) %  params.DifficultyAdjustmentInterval() != 0))
           {
@@ -29,7 +29,7 @@ if((pindexLast->nHeight > COINBASE_MATURITY_RuleChangeAfterHeight + 10 && /* blo
             // more than 30 mins and no block, difficulty will be changes to 10000* lower diff
             if (pblock->GetBlockTime() > (pindexLast->GetBlockTime() + params.nPowTargetSpacing*3))
                 {
-                  LogPrintf("Need Higher nBits: BH %d %d - %d",pindexLast->nHeight ,nProofOfWorkLimit ,pindexLast->nBits);
+                  LogPrintf("Need Higher nBits: BlockHeight %d nProofOfWork %d - lastNBits %d \n",pindexLast->nHeight ,nProofOfWorkLimit ,pindexLast->nBits);
                   return nProofOfWorkLimit;
                 }
             else
