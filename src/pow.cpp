@@ -19,7 +19,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
     if(pindexLast->nHeight > HeightOnlyTrustNodeCanMine+3000)
         nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact() / 1.094;
     if(pindexLast->nHeight > HeightNewTrust)
-        nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact() / 1.0094;
+        nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact() / 1.024;
     // Only change once per difficulty adjustment interval
     LogPrintf("Def status: BH %d %d - %d %d \n",pindexLast->nHeight ,nProofOfWorkLimit ,UintToArith256(params.powLimit).GetCompact(),params.DifficultyAdjustmentInterval());
 if((pindexLast->nHeight > COINBASE_MATURITY_RuleChangeAfterHeight + 10 && /* blocks after 98511 */ 
@@ -40,7 +40,7 @@ if((pindexLast->nHeight > COINBASE_MATURITY_RuleChangeAfterHeight + 10 && /* blo
                 pindex = pindex->pprev;
             if (pblock->GetBlockTime() < (pindex->GetBlockTime() + params.nPowTargetSpacing*5))
             {
-                LogPrintf("Increase Required work becuase of block time creation Height : %d :%d - %d",pindexLast->nHeight,pblock->GetBlockTime() ,pindex->GetBlockTime() + params.nPowTargetSpacing*5);
+               // LogPrintf("Increase Required work becuase of block time creation Height : %d :%d - %d",pindexLast->nHeight,pblock->GetBlockTime() ,pindex->GetBlockTime() + params.nPowTargetSpacing*5);
                 // Return the last non-special-10000-wmin-difficulty-rules-block multiple 4
                 pindex = pindexLast;
                 while (pindex->pprev && pindex->nHeight % params.DifficultyAdjustmentInterval() != 0 && pindex->nBits == nProofOfWorkLimit)
@@ -130,14 +130,16 @@ bool CheckProofOfWork(uint256 hash, unsigned int nBits, const Consensus::Params&
     arith_uint256 bnTarget;
 
     bnTarget.SetCompact(nBits, &fNegative, &fOverflow);
-
     // Check range
     if (fNegative || bnTarget == 0 || fOverflow || bnTarget > UintToArith256(params.powLimit))
-        return false;
 
+        return false;
+        
     // Check proof of work matches claimed amount
     if (UintToArith256(hash) > bnTarget)
+ 
         return false;
+   
 
     return true;
 }
