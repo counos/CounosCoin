@@ -60,6 +60,7 @@ public:
 
     const Consensus::Params& GetConsensus() const { return consensus; }
     const CMessageHeader::MessageStartChars& MessageStart() const { return pchMessageStart; }
+    const CMessageHeader::MessageStartChars& OldMessageStart() const { return pchMessageStart_old; }
     int GetDefaultPort() const { return nDefaultPort; }
 
     const CBlock& GenesisBlock() const { return genesis; }
@@ -90,6 +91,7 @@ protected:
 
     Consensus::Params consensus;
     CMessageHeader::MessageStartChars pchMessageStart;
+    CMessageHeader::MessageStartChars pchMessageStart_old;
     int nDefaultPort;
     uint64_t nPruneAfterHeight;
     uint64_t m_assumed_blockchain_size;
